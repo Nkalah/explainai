@@ -147,7 +147,12 @@ export type AnswerResult = {
 };
 
 export const generateAnswer = createServerFn({ method: "POST" })
-  .validator((data: unknown) => data as { question: string })
+  .validator((data: unknown) =>
+    data as {
+      question: string;
+      history?: { question: string; answer: string }[];
+    }
+  )
   .handler(async ({ data }): Promise<AnswerResult> => {
     const now = new Date();
     const today = formatDate(now);
@@ -206,6 +211,11 @@ export const generateAnswer = createServerFn({ method: "POST" })
       if (searchAttempted && !referenceBlock) searchFoundNothingUseful = true;
     }
 
+    const conversationMessages = (data.history ?? []).flatMap((h) => [
+      { role: "user", content: h.question },
+      { role: "assistant", content: h.answer },
+    ]);
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -223,8 +233,11 @@ Today's date is ${today}. If asked about the current date, day, or year, answer 
 
 You are not reliable at date arithmetic (adding years/months/days, or figuring out a day of the week) — never attempt to calculate this yourself.${computedFact ? "\n\n" + computedFact : " If the question requires calculating a date offset or a day of the week and no computed fact is provided below, say you're not confident in the exact day of the week without a calendar, but you can still state the resulting date if it's simple year/month arithmetic."}
 ${referenceBlock}
-${searchAttempted && searchFoundNothingUseful ? `\n\nA web search (query: "${searchQueryUsed}") was attempted for this question but the results found were not actually relevant to what was asked (they were about unrelated topics). This question is about something current, ongoing, or time-sensitive. CRITICAL: do not answer from memory here, even partially. Do not describe what you recall from training as if it might still be true, and do not blend an old recollection with a disclaimer. Say plainly and only: you searched but couldn't find relevant, current information on this specific topic, and your training data may be outdated on it. You may suggest the person check a dedicated news source directly. Stop there — do not add "however, as of my knowledge..." or similar hedged recollections afterward.` : ""}`,
+${searchAttempted && searchFoundNothingUseful ? `\n\nA web search (query: "${searchQueryUsed}") was attempted for this question but the results found were not actually relevant to what was asked (they were about unrelated topics). This question is about something current, ongoing, or time-sensitive. CRITICAL: do not answer from memory here, even partially. Do not describe what you recall from training as if it might still be true, and do not blend an old recollection with a disclaimer. Say plainly and only: you searched but couldn't find relevant, current information on this specific topic, and your training data may be outdated on it. You may suggest the person check a dedicated news source directly. Stop there — do not add "however, as of my knowledge..." or similar hedged recollections afterward.` : ""}
+
+If earlier messages in this conversation are included below, use them as context for follow-up questions (e.g. "explain that differently", "what about the second part"), but always prioritize the most recent question as what you're actually answering.`,
           },
+          ...conversationMessages,
           { role: "user", content: data.question },
         ],
       }),

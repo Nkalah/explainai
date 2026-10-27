@@ -1,9 +1,4 @@
-import { generateAnswer, type AnswerResult } from "@/lib/generateAnswer";
-import { useState } from "react";
 import { Whiteboard } from "./Whiteboard";
-import { LessonEngine } from "@/components/engine/LessonEngine";
-import { generateLesson, type LessonResult } from "@/lib/generateLesson";
-import { AttachMenu, AttachmentChips, type Attachment } from "@/components/site/AttachMenu";
 
 /* ---------- Hero ---------- */
 export function Hero() {
@@ -35,14 +30,14 @@ export function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             
-           <a   href="#try"
+            <a  href="#try"
               className="inline-flex h-11 items-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-transform hover:scale-[1.02]"
             >
               Try free →
             </a>
 
             
-           <a   href="#how"
+            <a  href="#how"
               className="inline-flex h-11 items-center rounded-full border bg-background/60 px-6 text-sm font-medium backdrop-blur transition-colors hover:bg-background"
             >
               Watch demo
@@ -52,7 +47,6 @@ export function Hero() {
             No credit card · 3 free lessons · Cancel anytime
           </div>
         </div>
-
         {/* Hero artifact */}
         <div className="relative mx-auto mt-20 max-w-5xl">
           <div
@@ -66,194 +60,6 @@ export function Hero() {
           />
           <Whiteboard />
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Ask input (Try) ---------- */
-const suggestions = [
-  "Solve x² + 5x + 6 = 0",
-  "Explain derivatives",
-  "Why does gravity exist?",
-  "How does recursion work?",
-];
-
-export function TryInput() {
-  const [question, setQuestion] = useState("");
-  const [askedQuestion, setAskedQuestion] = useState("");
-  const [answer, setAnswer] = useState<AnswerResult | null>(null);
-  const [lesson, setLesson] = useState<LessonResult | null>(null);
-  const [loadingAnswer, setLoadingAnswer] = useState(false);
-  const [loadingLesson, setLoadingLesson] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-
-  function addAttachments(next: Attachment[]) {
-    setAttachments((prev) => [...prev, ...next]);
-  }
-
-  function removeAttachment(id: string) {
-    setAttachments((prev) => {
-      const target = prev.find((a) => a.id === id);
-      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((a) => a.id !== id);
-    });
-  }
-
-  async function handleAsk(q: string) {
-    if (!q.trim() && attachments.length === 0) return;
-    setLoadingAnswer(true);
-    setError(null);
-    setAnswer(null);
-    setLesson(null);
-    try {
-      // NOTE: generateAnswer currently only accepts { question: string }.
-      // Attachments are captured and shown in the UI, but the backend
-      // doesn't read file contents yet — that needs a multimodal-capable
-      // model call (e.g. sending base64 images to a vision model) before
-      // uploaded photos/audio/files can actually influence the answer.
-      const result = await generateAnswer({ data: { question: q } });
-      setAskedQuestion(q);
-      setAnswer(result);
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong answering that. Try again.");
-    } finally {
-      setLoadingAnswer(false);
-    }
-  }
-
-  async function handleExplainVisually() {
-    setLoadingLesson(true);
-    setError(null);
-    try {
-      const result = await generateLesson({ data: { question: askedQuestion } });
-      setLesson(result);
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong building that lesson. Try again.");
-    } finally {
-      setLoadingLesson(false);
-    }
-  }
-
-  return (
-    <section id="try" className="border-y bg-secondary/40">
-      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Ask anything</div>
-        <h2 className="mt-3 font-display text-4xl md:text-5xl">What would you like to learn today?</h2>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAsk(question);
-          }}
-          className="mx-auto mt-8 max-w-xl"
-        >
-          <AttachmentChips attachments={attachments} onRemove={removeAttachment} />
-          <div className="flex items-center gap-2 rounded-full border bg-background p-2 shadow-[0_1px_0_rgba(0,0,0,0.02),0_20px_50px_-30px_rgba(15,15,30,0.2)]">
-            <AttachMenu onAdd={addAttachments} />
-            <input
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent px-2 py-2 text-[15px] outline-none placeholder:text-muted-foreground"
-              placeholder="e.g. Explain photosynthesis to a 10-year-old"
-            />
-            <button
-              type="submit"
-              disabled={loadingAnswer}
-              className="inline-flex h-10 flex-shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-50"
-            >
-              {loadingAnswer ? "Thinking…" : "Ask"}
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
-          {suggestions.map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setQuestion(s);
-                handleAsk(s);
-              }}
-              className="rounded-full border bg-background px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {error && <p className="mt-6 text-sm text-red-500">{error}</p>}
-
-        {answer && !lesson && (
-          <div className="mx-auto mt-8 max-w-xl rounded-2xl border bg-background p-6 text-left">
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{answer.answer}</p>
-
-            {answer.sources.length > 0 && (
-              <div className="mt-4 border-t pt-4 text-xs">
-                <div className="mb-2 font-medium text-foreground">Sources</div>
-                <ul className="space-y-1">
-                  {answer.sources.map((s) => (
-                    <li key={s.url}>
-                      
-                      <a  href={s.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand hover:underline"
-                      >
-                        {s.title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <button
-              onClick={handleExplainVisually}
-              disabled={loadingLesson}
-              className="mt-5 inline-flex h-9 items-center gap-2 rounded-full border bg-secondary px-4 text-sm font-medium transition-colors hover:bg-secondary/70 disabled:opacity-50"
-            >
-              {loadingLesson ? "Building your lesson…" : "🎓 Show me a full visual lesson"}
-            </button>
-          </div>
-        )}
-
-        {lesson && (
-          <div className="mx-auto mt-8 max-w-xl">
-            <LessonEngine lesson={lesson} question={askedQuestion} />
-            <div className="mt-4 flex items-center justify-between rounded-xl border bg-background px-4 py-3 text-left text-xs">
-              <div>
-                <span className="font-medium text-foreground">Confidence: {lesson.confidence}</span>
-                {lesson.confidenceReason && (
-                  <span className="text-muted-foreground"> — {lesson.confidenceReason}</span>
-                )}
-              </div>
-            </div>
-
-            {lesson.sources.length > 0 && (
-              <div className="mt-3 rounded-xl border bg-background px-4 py-3 text-left text-xs">
-                <div className="mb-2 font-medium text-foreground">Sources used</div>
-                <ul className="space-y-1">
-                  {lesson.sources.map((s) => (
-                    <li key={s.url}>
-                      
-                      <a  href={s.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand hover:underline"
-                      >
-                        {s.title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </section>
   );
@@ -584,7 +390,7 @@ export function FinalCTA() {
         </p>
         <div className="mt-8 flex justify-center gap-3">
           
-            <a href="#try"
+          <a  href="#try"
             className="inline-flex h-12 items-center rounded-full bg-foreground px-7 text-sm font-medium text-background transition-transform hover:scale-[1.02]"
           >
             Try ExplainAI free →
