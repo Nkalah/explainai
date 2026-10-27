@@ -1,139 +1,220 @@
-import { type AnswerResult } from "@/lib/generateAnswer";
-import { LessonEngine } from "@/components/engine/LessonEngine";
+import { type ChatReplyResult } from "@/lib/generateChatReply";
+import { lazy, Suspense } from "react";
 import { AttachmentChips } from "@/components/site/AttachMenu";
 import type { ChatTurn } from "@/hooks/useChat";
+import type { LessonStepExplanationMode } from "@/lib/parseLesson";
+
+const MarkdownAnswer = lazy(() => import("./ChatMarkdown"));
+const LessonPlayer = lazy(() =>
+  import("@/components/lesson/LessonPlayer").then((module) => ({ default: module.LessonPlayer })),
+);
 
 export function ChatMessage({
   turn,
   onExplainVisually,
+  onExplainInText,
+  onRetry,
+  onAskFollowUp,
+  onSuggestedTopic,
+  onExplainLessonStep,
 }: {
   turn: ChatTurn;
-  onExplainVisually: () => void;
+  onExplainVisually: (topic: string) => void;
+  onExplainInText: (topic: string) => void;
+  onRetry: () => void;
+  onAskFollowUp: () => void;
+  onSuggestedTopic: (topic: string) => void;
+  onExplainLessonStep: (stepId: string, mode: LessonStepExplanationMode) => void;
 }) {
   return (
-    <div className="space-y-4">
+    <article className="w-full min-w-0 space-y-4" aria-label="Conversation turn">
       {/* User bubble */}
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-foreground px-4 py-3 text-background">
+        <section
+          aria-label="Your message"
+          className="max-w-full rounded-2xl rounded-tr-sm bg-foreground px-4 py-3 text-background"
+        >
           {turn.attachments.length > 0 && (
             <AttachmentChips attachments={turn.attachments} onRemove={() => {}} />
           )}
-          <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{turn.question}</p>
-        </div>
+          <Suspense fallback={<p className="text-sm text-muted-foreground">Loading message…</p>}>
+            <MarkdownAnswer content={turn.question} />
+          </Suspense>
+        </section>
       </div>
 
       {/* AI bubble */}
       <div className="flex justify-start">
-        <div className="w-full max-w-[85%] rounded-2xl rounded-tl-sm border bg-background p-5">
+        <section
+          aria-label="ExplainAI response"
+          className={`w-full min-w-0 max-w-full overflow-hidden ${turn.lesson ? "rounded-none border-0 bg-transparent p-0" : "rounded-2xl rounded-tl-sm border bg-background p-4 sm:p-5"}`}
+        >
           {turn.loadingAnswer && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
-              Thinking…
+            <div className="thinking-bubble" role="status" aria-label="Thinking">
+              <span />
+              <span />
+              <span />
             </div>
           )}
 
-          {turn.error && <p className="text-sm text-red-500">{turn.error}</p>}
+          {turn.error && (
+            <FailureCard
+              title="I couldn't get that answer"
+              cause={turn.error}
+              onRetry={onRetry}
+              onTextInstead={() => onExplainInText(turn.question)}
+            />
+          )}
 
           {turn.answer && (
             <AnswerBlock
               answer={turn.answer}
               lesson={turn.lesson}
+              stepFollowUps={turn.stepFollowUps}
               loadingLesson={turn.loadingLesson}
               lessonError={turn.lessonError}
-              question={turn.question}
+              fallbackTopic={turn.question}
               onExplainVisually={onExplainVisually}
+              onExplainInText={onExplainInText}
+              onRetry={onRetry}
+              onAskFollowUp={onAskFollowUp}
+              onSuggestedTopic={onSuggestedTopic}
+              onExplainLessonStep={onExplainLessonStep}
             />
           )}
-        </div>
+        </section>
       </div>
-    </div>
+    </article>
   );
 }
 
 function AnswerBlock({
   answer,
   lesson,
+  stepFollowUps,
   loadingLesson,
   lessonError,
-  question,
+  fallbackTopic,
   onExplainVisually,
+  onExplainInText,
+  onRetry,
+  onAskFollowUp,
+  onSuggestedTopic,
+  onExplainLessonStep,
 }: {
-  answer: AnswerResult;
+  answer: ChatReplyResult;
   lesson: ChatTurn["lesson"];
+  stepFollowUps: ChatTurn["stepFollowUps"];
   loadingLesson: boolean;
   lessonError: string | null;
-  question: string;
-  onExplainVisually: () => void;
+  fallbackTopic: string;
+  onExplainVisually: (topic: string) => void;
+  onExplainInText: (topic: string) => void;
+  onRetry: () => void;
+  onAskFollowUp: () => void;
+  onSuggestedTopic: (topic: string) => void;
+  onExplainLessonStep: (stepId: string, mode: LessonStepExplanationMode) => void;
 }) {
-  if (lesson) {
-    return (
-      <div>
-        <LessonEngine lesson={lesson} question={question} />
-        <div className="mt-4 flex items-center justify-between rounded-xl border bg-secondary/40 px-4 py-3 text-xs">
-          <div>
-            <span className="font-medium text-foreground">Confidence: {lesson.confidence}</span>
-            {lesson.confidenceReason && (
-              <span className="text-muted-foreground"> — {lesson.confidenceReason}</span>
-            )}
-          </div>
-        </div>
-
-        {lesson.sources.length > 0 && (
-          <div className="mt-3 rounded-xl border bg-secondary/40 px-4 py-3 text-xs">
-            <div className="mb-2 font-medium text-foreground">Sources used</div>
-            <ul className="space-y-1">
-              {lesson.sources.map((s) => (
-                <li key={s.url}>
-                  
-                <a    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-brand hover:underline"
-                  >
-                    {s.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    );
-  }
-
+  const visualTopic = answer.visual_topic || fallbackTopic;
   return (
     <div>
-      <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{answer.answer}</p>
+      {!lesson ? <MarkdownAnswer content={answer.reply} /> : null}
 
-      {answer.sources.length > 0 && (
-        <div className="mt-4 border-t pt-4 text-xs">
-          <div className="mb-2 font-medium text-foreground">Sources</div>
-          <ul className="space-y-1">
-            {answer.sources.map((s) => (
-              <li key={s.url}>
-                
-                <a  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-brand hover:underline"
-                >
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {answer.visualizable && !lesson && !loadingLesson && (
+        <button
+          onClick={() => onExplainVisually(visualTopic)}
+          disabled={loadingLesson}
+          className="mt-4 inline-flex min-h-11 items-center rounded-full border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
+        >
+          {loadingLesson ? "Preparing illustration..." : "Show illustration"}
+        </button>
       )}
 
-      {lessonError && <p className="mt-3 text-sm text-red-500">{lessonError}</p>}
+      {loadingLesson ? <LessonSkeleton /> : null}
 
-      <button
-        onClick={onExplainVisually}
-        disabled={loadingLesson}
-        className="mt-5 inline-flex h-9 items-center gap-2 rounded-full border bg-secondary px-4 text-sm font-medium transition-colors hover:bg-secondary/70 disabled:opacity-50"
-      >
-        {loadingLesson ? "Building your lesson…" : "🎓 Show me a full visual lesson"}
-      </button>
+      {lessonError ? (
+        <FailureCard
+          title="Your lesson didn't come together"
+          cause={lessonError}
+          onRetry={() => onExplainVisually(visualTopic)}
+          onTextInstead={() => onExplainInText(visualTopic)}
+          disabled={loadingLesson}
+        />
+      ) : null}
+
+      {lesson && (
+        <div className="mt-5">
+          <Suspense fallback={<LessonSkeleton />}>
+            <LessonPlayer
+              lesson={lesson as Parameters<typeof LessonPlayer>[0]["lesson"]}
+              suggestedTopics={answer.suggested_topics}
+              onAskFollowUp={onAskFollowUp}
+              onSuggestedTopic={onSuggestedTopic}
+              stepFollowUps={stepFollowUps}
+              onExplainStep={onExplainLessonStep}
+            />
+          </Suspense>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FailureCard({
+  title,
+  cause,
+  onRetry,
+  onTextInstead,
+  disabled = false,
+}: {
+  title: string;
+  cause: string;
+  onRetry: () => void;
+  onTextInstead: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <section className="state-card mt-3" role="alert">
+      <h2>{title}</h2>
+      <p>{cause}</p>
+      <div className="state-card-actions">
+        <button
+          type="button"
+          className="ds-btn ds-btn--primary"
+          onClick={onRetry}
+          disabled={disabled}
+        >
+          Retry
+        </button>
+        <button
+          type="button"
+          className="ds-btn ds-btn--secondary"
+          onClick={onTextInstead}
+          disabled={disabled}
+        >
+          Explain in text instead
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function LessonSkeleton() {
+  return (
+    <div className="lesson-skeleton mt-4" role="status" aria-label="Preparing your lesson">
+      <p>Preparing your lesson…</p>
+      <div className="lesson-skeleton-stage" />
+      <div className="lesson-skeleton-copy">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="lesson-skeleton-controls">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
     </div>
   );
 }

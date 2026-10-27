@@ -43,7 +43,9 @@ export function QuizPanel({
   if (!questions) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-        <p className="text-sm text-muted-foreground">Test what you just learned with a short quiz.</p>
+        <p className="text-sm text-muted-foreground">
+          Test what you just learned with a short quiz.
+        </p>
         <button
           onClick={start}
           disabled={loading}
@@ -83,10 +85,10 @@ export function QuizPanel({
                         (isCorrect
                           ? "border-green-500/40 bg-green-500/10 text-foreground"
                           : isWrongSelected
-                          ? "border-red-500/40 bg-red-500/10 text-foreground"
-                          : isSelected
-                          ? "border-brand/50 bg-brand/10"
-                          : "hover:bg-secondary")
+                            ? "border-red-500/40 bg-red-500/10 text-foreground"
+                            : isSelected
+                              ? "border-brand/50 bg-brand/10"
+                              : "hover:bg-secondary")
                       }
                     >
                       {choice}
@@ -97,7 +99,9 @@ export function QuizPanel({
                 })}
               </div>
               {checked && (
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  {q.explanation}
+                </p>
               )}
             </div>
           );
@@ -138,6 +142,7 @@ async function mockQuiz(lesson: EngineLesson): Promise<QuizQuestion[]> {
     question: `Placeholder question about: ${scene.title}`,
     choices: ["Option A", "Option B", "Option C", "Option D"],
     correctIndex: 0,
-    explanation: "Wire \"onGenerateQuiz\" to your real quiz-generation call to replace this placeholder.",
+    explanation:
+      'Wire "onGenerateQuiz" to your real quiz-generation call to replace this placeholder.',
   }));
 }

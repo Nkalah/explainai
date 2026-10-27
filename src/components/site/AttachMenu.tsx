@@ -52,7 +52,9 @@ export function AttachMenu({ onAdd }: AttachMenuProps) {
 
   function handleFiles(fileList: FileList | null, forcedKind?: AttachmentKind) {
     if (!fileList || fileList.length === 0) return;
-    const next = Array.from(fileList).map((f) => toAttachment(f, forcedKind ?? kindFromMime(f.type)));
+    const next = Array.from(fileList).map((f) =>
+      toAttachment(f, forcedKind ?? kindFromMime(f.type)),
+    );
     onAdd(next);
     setOpen(false);
   }
@@ -102,9 +104,15 @@ export function AttachMenu({ onAdd }: AttachMenuProps) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label="Add attachment"
-        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
       >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2}>
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path d="M12 5v14M5 12h14" strokeLinecap="round" />
         </svg>
       </button>
@@ -112,12 +120,37 @@ export function AttachMenu({ onAdd }: AttachMenuProps) {
       {open && (
         <>
           {/* click-outside catcher */}
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <button
+            type="button"
+            aria-label="Close attachment menu"
+            className="fixed inset-0 z-10 cursor-default border-0 bg-transparent p-0"
+            onClick={() => setOpen(false)}
+          />
           <div className="absolute bottom-12 left-0 z-20 w-60 overflow-hidden rounded-2xl border bg-card p-1.5 text-left shadow-[0_20px_60px_-30px_rgba(15,15,30,0.35)]">
-            <MenuItem label="Photos & videos" hint="jpg, png, mp4…" icon={<ImageIcon />} onClick={() => mediaInputRef.current?.click()} />
-            <MenuItem label="Audio" hint="mp3, wav, m4a…" icon={<AudioIcon />} onClick={() => audioInputRef.current?.click()} />
-            <MenuItem label="Files" hint="pdf, docx, csv…" icon={<FileIcon />} onClick={() => fileInputRef.current?.click()} />
-            <MenuItem label="Add a folder" hint="upload everything inside" icon={<FolderIcon />} onClick={() => folderInputRef.current?.click()} />
+            <MenuItem
+              label="Photos & videos"
+              hint="jpg, png, mp4…"
+              icon={<ImageIcon />}
+              onClick={() => mediaInputRef.current?.click()}
+            />
+            <MenuItem
+              label="Audio"
+              hint="mp3, wav, m4a…"
+              icon={<AudioIcon />}
+              onClick={() => audioInputRef.current?.click()}
+            />
+            <MenuItem
+              label="Files"
+              hint="pdf, docx, csv…"
+              icon={<FileIcon />}
+              onClick={() => fileInputRef.current?.click()}
+            />
+            <MenuItem
+              label="Add a folder"
+              hint="upload everything inside"
+              icon={<FolderIcon />}
+              onClick={() => folderInputRef.current?.click()}
+            />
             <MenuItem
               label={screenshotting ? "Capturing…" : "Take screenshot"}
               hint="capture your screen"
@@ -136,9 +169,29 @@ export function AttachMenu({ onAdd }: AttachMenuProps) {
       )}
 
       {/* hidden native inputs — kept out of layout, triggered programmatically */}
-      <input ref={mediaInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
-      <input ref={audioInputRef} type="file" accept="audio/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files, "audio")} />
-      <input ref={fileInputRef} type="file" multiple className="hidden" onChange={(e) => handleFiles(e.target.files, "file")} />
+      <input
+        ref={mediaInputRef}
+        type="file"
+        accept="image/*,video/*"
+        multiple
+        className="hidden"
+        onChange={(e) => handleFiles(e.target.files)}
+      />
+      <input
+        ref={audioInputRef}
+        type="file"
+        accept="audio/*"
+        multiple
+        className="hidden"
+        onChange={(e) => handleFiles(e.target.files, "audio")}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={(e) => handleFiles(e.target.files, "file")}
+      />
       <input
         ref={folderInputRef}
         type="file"
@@ -171,7 +224,7 @@ function MenuItem({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-secondary disabled:opacity-50"
+      className="flex min-h-11 w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-secondary disabled:opacity-50"
     >
       <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-foreground">
         {icon}
@@ -198,12 +251,23 @@ export function AttachmentChips({
   return (
     <div className="mx-auto mb-3 flex max-w-xl flex-wrap justify-center gap-2">
       {attachments.map((a) => (
-        <div key={a.id} className="group relative flex items-center gap-2 rounded-full border bg-background py-1 pl-1 pr-3 text-xs">
+        <div
+          key={a.id}
+          className="group relative flex items-center gap-2 rounded-full border bg-background py-1 pl-1 pr-3 text-xs"
+        >
           {a.previewUrl ? (
             <img src={a.previewUrl} alt={a.name} className="h-6 w-6 rounded-full object-cover" />
           ) : (
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-              {a.kind === "audio" ? <AudioIcon /> : a.kind === "folder" ? <FolderIcon /> : a.kind === "video" ? <ImageIcon /> : <FileIcon />}
+              {a.kind === "audio" ? (
+                <AudioIcon />
+              ) : a.kind === "folder" ? (
+                <FolderIcon />
+              ) : a.kind === "video" ? (
+                <ImageIcon />
+              ) : (
+                <FileIcon />
+              )}
             </span>
           )}
           <span className="max-w-[9rem] truncate text-foreground">{a.name}</span>
@@ -212,9 +276,15 @@ export function AttachmentChips({
             type="button"
             onClick={() => onRemove(a.id)}
             aria-label={`Remove ${a.name}`}
-            className="ml-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+            className="ml-1 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
           >
-            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.5}>
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
             </svg>
           </button>
@@ -247,7 +317,11 @@ function AudioIcon() {
 function FileIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path d="M14 2v6h6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -255,14 +329,22 @@ function FileIcon() {
 function FolderIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 function ScreenshotIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path d="M9 3H5a2 2 0 00-2 2v4M15 3h4a2 2 0 012 2v4M9 21H5a2 2 0 01-2-2v-4M15 21h4a2 2 0 002-2v-4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M9 3H5a2 2 0 00-2 2v4M15 3h4a2 2 0 012 2v4M9 21H5a2 2 0 01-2-2v-4M15 21h4a2 2 0 002-2v-4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

@@ -11,9 +11,19 @@ import { validateScenePlan } from "./scene/validateScenePlan";
 import { whiteboardSceneAdapter } from "./scene/adapters/whiteboardSceneAdapter";
 import { createExecutionInspector } from "./execution/inspector";
 import { recordExecutionReport } from "./execution/store";
-import type { RouterSection, SearchSection, ToolDecisionTrace, ToolExecution } from "./execution/types";
+import type {
+  RouterSection,
+  SearchSection,
+  ToolDecisionTrace,
+  ToolExecution,
+} from "./execution/types";
+import { z } from "zod";
 
 const isDev = process.env.NODE_ENV !== "production";
+
+const LessonInputSchema = z.object({
+  question: z.string().min(1, "Question is required").max(2000, "Question is too long"),
+});
 
 export type LessonSource = { title: string; url: string };
 
@@ -34,10 +44,18 @@ function objectTypeCounts(lesson: EngineLesson): Record<string, number> {
   return counts;
 }
 
-const DIAGRAM_TYPES = new Set(["graph", "barChart", "pieChart", "scatterPlot", "table", "array", "stack"]);
+const DIAGRAM_TYPES = new Set([
+  "graph",
+  "barChart",
+  "pieChart",
+  "scatterPlot",
+  "table",
+  "array",
+  "stack",
+]);
 
 export const generateLesson = createServerFn({ method: "POST" })
-  .validator((data: unknown) => data as { question: string })
+  .validator((data: unknown) => LessonInputSchema.parse(data))
   .handler(async ({ data }): Promise<LessonResult> => {
     const inspector = isDev ? createExecutionInspector(data.question) : null;
 
@@ -87,7 +105,9 @@ export const generateLesson = createServerFn({ method: "POST" })
       });
 
       const selectedTools = decisions.filter((d) => d.shouldRun).map((d) => d.tool);
-      const skippedTools = decisions.filter((d) => !d.shouldRun).map((d) => ({ tool: d.tool, reason: d.reason }));
+      const skippedTools = decisions
+        .filter((d) => !d.shouldRun)
+        .map((d) => ({ tool: d.tool, reason: d.reason }));
 
       const routerSection: RouterSection = {
         allTools,
@@ -112,7 +132,8 @@ export const generateLesson = createServerFn({ method: "POST" })
           });
           continue;
         }
-        const canRunInParallel = toolRegistry.get(decision.tool)?.metadata.canRunInParallel ?? false;
+        const canRunInParallel =
+          toolRegistry.get(decision.tool)?.metadata.canRunInParallel ?? false;
         const execution: ToolExecution = {
           tool: result.tool,
           success: result.success,
@@ -153,7 +174,11 @@ export const generateLesson = createServerFn({ method: "POST" })
 
     // --- Stage 1: renderer-independent Scene Plan ---
     const scenePlanningStart = Date.now();
-    const { scenePlan, usage: scenePlanUsage } = await generateScenePlan(data.question, plan, toolResults);
+    const { scenePlan, usage: scenePlanUsage } = await generateScenePlan(
+      data.question,
+      plan,
+      toolResults,
+    );
     const validationIssues = validateScenePlan(scenePlan);
     const scenePlanningEnd = Date.now();
 
@@ -174,7 +199,7 @@ export const generateLesson = createServerFn({ method: "POST" })
         `Scene plan failed validation: ${validationIssues
           .filter((i) => i.severity === "error")
           .map((i) => i.message)
-          .join("; ")}`
+          .join("; ")}`,
       );
     }
 
@@ -184,7 +209,7 @@ export const generateLesson = createServerFn({ method: "POST" })
       data.question,
       plan,
       scenePlan,
-      toolResults
+      toolResults,
     );
     const adapterEnd = Date.now();
 
@@ -192,7 +217,10 @@ export const generateLesson = createServerFn({ method: "POST" })
       throw new Error("The lesson came back empty. Try asking again.");
     }
 
-    const narrationCharacterCount = adapted.lesson.scenes.reduce((sum, s) => sum + s.narration.length, 0);
+    const narrationCharacterCount = adapted.lesson.scenes.reduce(
+      (sum, s) => sum + s.narration.length,
+      0,
+    );
     const animationCount = adapted.lesson.scenes.reduce((sum, s) => sum + s.objects.length, 0);
     const typeCounts = objectTypeCounts(adapted.lesson);
     const diagramCount = Object.entries(typeCounts)

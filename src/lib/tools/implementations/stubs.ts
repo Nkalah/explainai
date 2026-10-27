@@ -30,9 +30,11 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "PythonCodeExecutor",
-    description: "Would run real Python code and return output — requires a sandboxed execution environment not present in this app yet.",
+    description:
+      "Would run real Python code and return output — requires a sandboxed execution environment not present in this app yet.",
     whenToUse: "Programming lesson would benefit from showing actual code output.",
-    whenNeverToUse: "Any lesson, until a real sandboxed executor is integrated — do not claim code was run.",
+    whenNeverToUse:
+      "Any lesson, until a real sandboxed executor is integrated — do not claim code was run.",
     subjects: ["programming"],
     priority: 6,
     canRunInParallel: false,
@@ -40,8 +42,10 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "ProgrammingVisualizer",
-    description: "Would generate step-by-step memory/variable-state visualizations for code execution.",
-    whenToUse: "Programming lesson covering algorithms/data structures where step-by-step state helps.",
+    description:
+      "Would generate step-by-step memory/variable-state visualizations for code execution.",
+    whenToUse:
+      "Programming lesson covering algorithms/data structures where step-by-step state helps.",
     whenNeverToUse: "Non-programming subjects.",
     subjects: ["programming"],
     priority: 6,
@@ -50,9 +54,11 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "GeometryVisualizer",
-    description: "Would generate precise geometric figures (angles, measurements) beyond the basic shapes the Scene Generator already draws.",
+    description:
+      "Would generate precise geometric figures (angles, measurements) beyond the basic shapes the Scene Generator already draws.",
     whenToUse: "Geometry problems needing precise, labeled figures.",
-    whenNeverToUse: "Simple shapes already covered by the Scene Generator's built-in shape objects.",
+    whenNeverToUse:
+      "Simple shapes already covered by the Scene Generator's built-in shape objects.",
     subjects: ["math"],
     priority: 5,
     canRunInParallel: true,
@@ -60,7 +66,8 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "EquationSolver",
-    description: "Would symbolically solve equations step-by-step and verify the Lesson Generator's worked example is actually correct.",
+    description:
+      "Would symbolically solve equations step-by-step and verify the Lesson Generator's worked example is actually correct.",
     whenToUse: "Any lesson with an equation to solve, as a correctness check.",
     whenNeverToUse: "Non-equation content.",
     subjects: ["math"],
@@ -70,7 +77,8 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "TimelineGenerator",
-    description: "Would produce structured timeline data (events + dates) for the Scene Generator to render as timeline objects.",
+    description:
+      "Would produce structured timeline data (events + dates) for the Scene Generator to render as timeline objects.",
     whenToUse: "History/biography lessons with a clear chronological sequence.",
     whenNeverToUse: "Non-chronological content.",
     subjects: ["history"],
@@ -90,7 +98,8 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "MermaidDiagramGenerator",
-    description: "Would generate Mermaid.js diagram syntax for complex relationships — not currently rendered anywhere in the app.",
+    description:
+      "Would generate Mermaid.js diagram syntax for complex relationships — not currently rendered anywhere in the app.",
     whenToUse: "Never yet — no Mermaid renderer exists in the frontend.",
     whenNeverToUse: "Always, until a Mermaid renderer is added.",
     subjects: ["general"],
@@ -100,7 +109,8 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "SVGWhiteboardGenerator",
-    description: "Would generate raw custom SVG beyond the Scene Generator's structured object types.",
+    description:
+      "Would generate raw custom SVG beyond the Scene Generator's structured object types.",
     whenToUse: "A visual doesn't fit any existing object type in engineTypes.ts.",
     whenNeverToUse: "Anything the existing object types already cover.",
     subjects: ["general"],
@@ -120,7 +130,8 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "ImageSearch",
-    description: "Would retrieve real reference images (e.g. an actual photo of a historical figure or a diagram from a textbook).",
+    description:
+      "Would retrieve real reference images (e.g. an actual photo of a historical figure or a diagram from a textbook).",
     whenToUse: "A lesson would benefit from a real photo/diagram rather than an SVG illustration.",
     whenNeverToUse: "Copyrighted media risk, or where the Scene Generator's own diagrams suffice.",
     subjects: ["general"],
@@ -130,9 +141,11 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "QuizGenerator",
-    description: "Would generate structured quiz questions with answers as data, rather than the current inline scene-based approach.",
+    description:
+      "Would generate structured quiz questions with answers as data, rather than the current inline scene-based approach.",
     whenToUse: "Plan.includeQuiz is true and a richer quiz UI exists.",
-    whenNeverToUse: "Currently, since quiz content is handled inline by the Lesson Generator via the plan block.",
+    whenNeverToUse:
+      "Currently, since quiz content is handled inline by the Lesson Generator via the plan block.",
     subjects: ["general"],
     priority: 4,
     canRunInParallel: true,
@@ -160,7 +173,8 @@ export const stubTools: Tool[] = [
   }),
   stubTool({
     name: "SummaryGenerator",
-    description: "Would produce a standalone post-lesson summary separate from the objective field.",
+    description:
+      "Would produce a standalone post-lesson summary separate from the objective field.",
     whenToUse: "Long/complex lessons where a recap distinct from the objective helps.",
     whenNeverToUse: "Currently, since the Lesson Generator's objective + Recap scene covers this.",
     subjects: ["general"],

@@ -35,7 +35,11 @@ export function ExplainFurtherPanel({
 }: {
   lesson: EngineLesson;
   question: string;
-  onSendMessage?: (message: string, history: ChatMessage[], lesson: EngineLesson) => Promise<string>;
+  onSendMessage?: (
+    message: string,
+    history: ChatMessage[],
+    lesson: EngineLesson,
+  ) => Promise<string>;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");

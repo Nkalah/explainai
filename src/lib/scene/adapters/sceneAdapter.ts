@@ -13,7 +13,11 @@ export interface AdaptedLesson {
   confidenceReason: string;
 }
 
-export type AdapterUsage = { prompt_tokens: number; completion_tokens: number; total_tokens: number };
+export type AdapterUsage = {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+};
 
 export interface SceneAdapterResult {
   adapted: AdaptedLesson;
@@ -34,6 +38,6 @@ export interface SceneAdapter {
     question: string,
     plan: LessonPlan,
     scenePlan: ScenePlan,
-    toolResults: ToolResult[]
+    toolResults: ToolResult[],
   ): Promise<SceneAdapterResult>;
 }

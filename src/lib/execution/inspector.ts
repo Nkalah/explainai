@@ -106,7 +106,8 @@ class DefaultExecutionInspector implements ExecutionInspector {
 
   recordPlanner(section: PlannerSection) {
     this.trace.planner = section;
-    const status: ExecutionStatus = section.confidence < LOW_CONFIDENCE_THRESHOLD ? "warning" : "success";
+    const status: ExecutionStatus =
+      section.confidence < LOW_CONFIDENCE_THRESHOLD ? "warning" : "success";
     this.pushStage("planner", status, section.durationMs);
     if (section.confidence < LOW_CONFIDENCE_THRESHOLD) {
       this.warn({
@@ -176,7 +177,10 @@ class DefaultExecutionInspector implements ExecutionInspector {
         message: issue.message,
         severity: "warning",
         stage: "scenePlanning",
-        detail: issue.sceneId != null ? { sceneId: issue.sceneId, code: issue.code } : { code: issue.code },
+        detail:
+          issue.sceneId != null
+            ? { sceneId: issue.sceneId, code: issue.code }
+            : { code: issue.code },
       });
     }
   }
@@ -231,7 +235,8 @@ class DefaultExecutionInspector implements ExecutionInspector {
       lessonGenerationMs: generation.durationMs,
       renderPrepMs: this.trace.stages.find((s) => s.name === "renderPrep")?.durationMs ?? 0,
       totalMs: totalDurationMs,
-      slowestStage: [...this.trace.stages].sort((a, b) => b.durationMs - a.durationMs)[0]?.name ?? "none",
+      slowestStage:
+        [...this.trace.stages].sort((a, b) => b.durationMs - a.durationMs)[0]?.name ?? "none",
       plannerTokens,
       generationTokens,
       totalTokens,

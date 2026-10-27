@@ -2,7 +2,13 @@ import { useEffect, useRef } from "react";
 import type { EngineLesson } from "@/lib/engineTypes";
 import type { LessonPlayback } from "./useLessonPlayback";
 
-export function TranscriptPanel({ lesson, playback }: { lesson: EngineLesson; playback: LessonPlayback }) {
+export function TranscriptPanel({
+  lesson,
+  playback,
+}: {
+  lesson: EngineLesson;
+  playback: LessonPlayback;
+}) {
   const { index, goToStep } = playback;
   const activeRef = useRef<HTMLButtonElement>(null);
 

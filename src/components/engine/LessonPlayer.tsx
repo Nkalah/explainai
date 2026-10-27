@@ -16,9 +16,16 @@ type PanelTab = "explain" | "quiz" | "practice" | "transcript" | "notes" | null;
 export interface LessonPlayerProps {
   lesson: EngineLesson;
   question: string;
-  onSendMessage?: (message: string, history: ChatMessage[], lesson: EngineLesson) => Promise<string>;
+  onSendMessage?: (
+    message: string,
+    history: ChatMessage[],
+    lesson: EngineLesson,
+  ) => Promise<string>;
   onGenerateQuiz?: (lesson: EngineLesson) => Promise<QuizQuestion[]>;
-  onGeneratePractice?: (lesson: EngineLesson, difficulty: PracticeDifficulty) => Promise<PracticeProblem[]>;
+  onGeneratePractice?: (
+    lesson: EngineLesson,
+    difficulty: PracticeDifficulty,
+  ) => Promise<PracticeProblem[]>;
   onDownload?: () => void;
 }
 
@@ -58,6 +65,11 @@ export function LessonPlayer({
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
+      if (e.key === "Escape" && document.fullscreenElement) {
+        e.preventDefault();
+        void document.exitFullscreen?.();
+        return;
+      }
       const isTyping = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA";
       if (isTyping) {
         if (e.key === "Escape") target?.blur();
@@ -70,10 +82,12 @@ export function LessonPlayer({
           playback.togglePlay();
           break;
         case "ArrowLeft":
-          playback.goPrev();
+          if (e.shiftKey) playback.rewind();
+          else playback.goPrev();
           break;
         case "ArrowRight":
-          playback.goNext();
+          if (e.shiftKey) playback.fastForward();
+          else playback.goNext();
           break;
         case "m":
         case "M":
@@ -82,9 +96,6 @@ export function LessonPlayer({
         case "f":
         case "F":
           toggleFullscreen();
-          break;
-        case "Escape":
-          if (document.fullscreenElement) document.exitFullscreen?.();
           break;
       }
     }
@@ -106,7 +117,12 @@ export function LessonPlayer({
       {/* Whiteboard + controls + timeline */}
       <div className="flex min-h-0 flex-1 flex-col gap-2">
         <div className="relative min-h-0 flex-1">
-          <LessonEngine lesson={lesson} question={question} playback={playback} onContinue={playback.goNext} />
+          <LessonEngine
+            lesson={lesson}
+            question={question}
+            playback={playback}
+            onContinue={playback.goNext}
+          />
           <LessonControls
             playback={playback}
             isFullscreen={isFullscreen}
@@ -156,7 +172,9 @@ export function LessonPlayer({
                 onClick={() => setPanel(t.id)}
                 className={
                   "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors " +
-                  (panel === t.id ? "bg-brand/10 text-brand" : "text-muted-foreground hover:bg-secondary")
+                  (panel === t.id
+                    ? "bg-brand/10 text-brand"
+                    : "text-muted-foreground hover:bg-secondary")
                 }
               >
                 {t.icon}
@@ -165,6 +183,7 @@ export function LessonPlayer({
             ))}
             <button
               onClick={() => setPanel(null)}
+              aria-label="Close lesson panel"
               className="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
             >
               <X size={15} />
@@ -173,10 +192,16 @@ export function LessonPlayer({
 
           <div className="min-h-0 flex-1">
             {panel === "explain" && (
-              <ExplainFurtherPanel lesson={lesson} question={question} onSendMessage={onSendMessage} />
+              <ExplainFurtherPanel
+                lesson={lesson}
+                question={question}
+                onSendMessage={onSendMessage}
+              />
             )}
             {panel === "quiz" && <QuizPanel lesson={lesson} onGenerateQuiz={onGenerateQuiz} />}
-            {panel === "practice" && <PracticePanel lesson={lesson} onGeneratePractice={onGeneratePractice} />}
+            {panel === "practice" && (
+              <PracticePanel lesson={lesson} onGeneratePractice={onGeneratePractice} />
+            )}
             {panel === "transcript" && <TranscriptPanel lesson={lesson} playback={playback} />}
             {panel === "notes" && <NotesPanel lessonKey={playback.lessonKey} />}
           </div>
@@ -185,12 +210,13 @@ export function LessonPlayer({
 
       {/* Persistent panel launcher, visible even before the lesson finishes */}
       {!panel && (
-        <div className="hidden flex-shrink-0 flex-col gap-2 lg:flex">
+        <div className="flex flex-shrink-0 flex-row justify-center gap-2 lg:flex-col">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setPanel(t.id)}
               title={t.label}
+              aria-label={t.label}
               className="flex h-10 w-10 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-secondary hover:text-foreground"
             >
               {t.icon}

@@ -1,6 +1,4 @@
-import type {
-  ToolRouter, ToolRegistry, ToolResult, RoutingDecision, ToolRequest,
-} from "./types";
+import type { ToolRouter, ToolRegistry, ToolResult, RoutingDecision, ToolRequest } from "./types";
 import type { LessonPlan } from "../lessonPlan";
 import { toolRegistry } from "./registry";
 
@@ -15,7 +13,12 @@ function candidateToolsForPlan(plan: LessonPlan, question: string): RoutingDecis
   const visuals = new Set(plan.recommendedVisuals);
   const subjectLower = plan.subject.toLowerCase();
 
-  const push = (tool: RoutingDecision["tool"], shouldRun: boolean, confidence: number, reason: string) => {
+  const push = (
+    tool: RoutingDecision["tool"],
+    shouldRun: boolean,
+    confidence: number,
+    reason: string,
+  ) => {
     decisions.push({ tool, shouldRun, confidence, reason });
   };
 
@@ -25,47 +28,141 @@ function candidateToolsForPlan(plan: LessonPlan, question: string): RoutingDecis
     "TrustedSourcesRetriever",
     needsFacts && plan.difficulty !== "Elementary",
     needsFacts ? 0.7 : 0.2,
-    needsFacts ? "Non-math/programming subject likely benefits from grounded sources." : "Subject is stable/computational."
+    needsFacts
+      ? "Non-math/programming subject likely benefits from grounded sources."
+      : "Subject is stable/computational.",
   );
   push(
     "SearchEngine",
     /current|latest|recent|today|yesterday|this year|news/.test(q),
     /current|latest|recent|today|yesterday|this year|news/.test(q) ? 0.85 : 0.1,
-    "Question phrasing suggests time-sensitive/current information is needed."
+    "Question phrasing suggests time-sensitive/current information is needed.",
   );
-  push("Wikipedia", false, 0.1, "Not implemented yet; TrustedSourcesRetriever covers this need for now.");
+  push(
+    "Wikipedia",
+    false,
+    0.1,
+    "Not implemented yet; TrustedSourcesRetriever covers this need for now.",
+  );
   push("ImageSearch", false, 0.05, "Not implemented yet.");
 
   // --- Math tools ---
-  const isMath = subjectLower.includes("math") || subjectLower.includes("algebra") || subjectLower.includes("calculus") || subjectLower.includes("geometry");
-  push("Calculator", isMath && /[\d]+\s*[\+\-\*\/]\s*[\d]/.test(q), isMath ? 0.6 : 0.1, "Arithmetic expression detected in a math question.");
-  push("EquationSolver", isMath && /solve|equation|=/.test(q), isMath ? 0.6 : 0.1, "Question asks to solve an equation.");
-  push("GeometryVisualizer", isMath && visuals.has("Shape"), 0.5, "Plan recommends shape visuals for a math topic.");
-  push("GraphGenerator", visuals.has("Graph"), visuals.has("Graph") ? 0.7 : 0.1, "Plan recommends a graph visual.");
+  const isMath =
+    subjectLower.includes("math") ||
+    subjectLower.includes("algebra") ||
+    subjectLower.includes("calculus") ||
+    subjectLower.includes("geometry");
+  push(
+    "Calculator",
+    isMath && /[\d]+\s*[\+\-\*\/]\s*[\d]/.test(q),
+    isMath ? 0.6 : 0.1,
+    "Arithmetic expression detected in a math question.",
+  );
+  push(
+    "EquationSolver",
+    isMath && /solve|equation|=/.test(q),
+    isMath ? 0.6 : 0.1,
+    "Question asks to solve an equation.",
+  );
+  push(
+    "GeometryVisualizer",
+    isMath && visuals.has("Shape"),
+    0.5,
+    "Plan recommends shape visuals for a math topic.",
+  );
+  push(
+    "GraphGenerator",
+    visuals.has("Graph"),
+    visuals.has("Graph") ? 0.7 : 0.1,
+    "Plan recommends a graph visual.",
+  );
 
   // --- Programming tools ---
-  const isProgramming = subjectLower.includes("programming") || subjectLower.includes("code") || subjectLower.includes("computer science");
-  push("PythonCodeExecutor", false, isProgramming ? 0.3 : 0.05, "No sandboxed execution environment implemented yet.");
-  push("ProgrammingVisualizer", isProgramming && visuals.has("CodeAnimation"), isProgramming ? 0.6 : 0.1, "Plan recommends code animation for a programming topic.");
+  const isProgramming =
+    subjectLower.includes("programming") ||
+    subjectLower.includes("code") ||
+    subjectLower.includes("computer science");
+  push(
+    "PythonCodeExecutor",
+    false,
+    isProgramming ? 0.3 : 0.05,
+    "No sandboxed execution environment implemented yet.",
+  );
+  push(
+    "ProgrammingVisualizer",
+    isProgramming && visuals.has("CodeAnimation"),
+    isProgramming ? 0.6 : 0.1,
+    "Plan recommends code animation for a programming topic.",
+  );
 
   // --- Everyday utility tools ---
-  push("DateCalculator", /\bdate|day of the week|years? (from|ago)|days? (from|ago)\b/.test(q), /\bdate|day of the week/.test(q) ? 0.8 : 0.2, "Question involves date arithmetic.");
-  push("UnitConverter", /convert|how many (km|miles|kg|lbs|celsius|fahrenheit)/.test(q), /convert/.test(q) ? 0.7 : 0.1, "Question asks for a unit conversion.");
+  push(
+    "DateCalculator",
+    /\bdate|day of the week|years? (from|ago)|days? (from|ago)\b/.test(q),
+    /\bdate|day of the week/.test(q) ? 0.8 : 0.2,
+    "Question involves date arithmetic.",
+  );
+  push(
+    "UnitConverter",
+    /convert|how many (km|miles|kg|lbs|celsius|fahrenheit)/.test(q),
+    /convert/.test(q) ? 0.7 : 0.1,
+    "Question asks for a unit conversion.",
+  );
 
   // --- Structural / diagram tools ---
-  push("TimelineGenerator", visuals.has("Timeline"), visuals.has("Timeline") ? 0.6 : 0.1, "Plan recommends a timeline visual.");
-  push("FlowchartGenerator", visuals.has("Flowchart"), visuals.has("Flowchart") ? 0.6 : 0.1, "Plan recommends a flowchart visual.");
-  push("MermaidDiagramGenerator", false, 0.05, "Not implemented; FlowchartGenerator/SVGWhiteboardGenerator cover current diagram needs.");
-  push("SVGWhiteboardGenerator", false, 0.1, "Scene rendering is already handled directly by the Lesson Generator + Engine; not a separate tool call yet.");
+  push(
+    "TimelineGenerator",
+    visuals.has("Timeline"),
+    visuals.has("Timeline") ? 0.6 : 0.1,
+    "Plan recommends a timeline visual.",
+  );
+  push(
+    "FlowchartGenerator",
+    visuals.has("Flowchart"),
+    visuals.has("Flowchart") ? 0.6 : 0.1,
+    "Plan recommends a flowchart visual.",
+  );
+  push(
+    "MermaidDiagramGenerator",
+    false,
+    0.05,
+    "Not implemented; FlowchartGenerator/SVGWhiteboardGenerator cover current diagram needs.",
+  );
+  push(
+    "SVGWhiteboardGenerator",
+    false,
+    0.1,
+    "Scene rendering is already handled directly by the Lesson Generator + Engine; not a separate tool call yet.",
+  );
 
   // --- Engagement tools ---
-  push("QuizGenerator", plan.includeQuiz, plan.includeQuiz ? 0.9 : 0.05, "Plan explicitly requested a quiz.");
-  push("PracticeQuestionGenerator", plan.includePractice, plan.includePractice ? 0.9 : 0.05, "Plan explicitly requested practice questions.");
+  push(
+    "QuizGenerator",
+    plan.includeQuiz,
+    plan.includeQuiz ? 0.9 : 0.05,
+    "Plan explicitly requested a quiz.",
+  );
+  push(
+    "PracticeQuestionGenerator",
+    plan.includePractice,
+    plan.includePractice ? 0.9 : 0.05,
+    "Plan explicitly requested practice questions.",
+  );
   push("FlashcardGenerator", false, 0.05, "Not implemented yet.");
-  push("SummaryGenerator", false, 0.05, "Lesson Generator already produces objective/summary inline; not a separate tool call yet.");
+  push(
+    "SummaryGenerator",
+    false,
+    0.05,
+    "Lesson Generator already produces objective/summary inline; not a separate tool call yet.",
+  );
 
   // --- Meta tool, always runs ---
-  push("ConfidenceEvaluator", true, 1, "Always run to attach a final confidence rating to the lesson.");
+  push(
+    "ConfidenceEvaluator",
+    true,
+    1,
+    "Always run to attach a final confidence rating to the lesson.",
+  );
 
   return decisions;
 }
@@ -83,7 +180,12 @@ class DefaultToolRouter implements ToolRouter {
 
     const registered = toRun
       .map((d) => ({ decision: d, tool: this.registry.get(d.tool) }))
-      .filter((x): x is { decision: RoutingDecision; tool: NonNullable<ReturnType<ToolRegistry["get"]>> } => x.tool != null);
+      .filter(
+        (
+          x,
+        ): x is { decision: RoutingDecision; tool: NonNullable<ReturnType<ToolRegistry["get"]>> } =>
+          x.tool != null,
+      );
 
     // Split into parallel-safe vs sequential groups, sequential ones ordered by priority (desc).
     const parallelGroup = registered.filter((x) => x.tool.metadata.canRunInParallel);
@@ -93,7 +195,10 @@ class DefaultToolRouter implements ToolRouter {
 
     const request: ToolRequest = { question, plan };
 
-    const runOne = async (entry: { tool: NonNullable<ReturnType<ToolRegistry["get"]>>; decision: RoutingDecision }): Promise<ToolResult> => {
+    const runOne = async (entry: {
+      tool: NonNullable<ReturnType<ToolRegistry["get"]>>;
+      decision: RoutingDecision;
+    }): Promise<ToolResult> => {
       const start = Date.now();
       try {
         const result = await entry.tool.run(request);

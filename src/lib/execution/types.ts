@@ -22,14 +22,30 @@ export interface WarningEvent {
   code: WarningCode;
   message: string;
   severity: "warning" | "error";
-  stage: "planner" | "router" | "tool" | "search" | "scenePlanning" | "adapter" | "generation" | "performance";
+  stage:
+    | "planner"
+    | "router"
+    | "tool"
+    | "search"
+    | "scenePlanning"
+    | "adapter"
+    | "generation"
+    | "performance";
   /** Kept to concrete primitive values (not `unknown`) — TanStack Start's
    *  server-fn serialization checker rejects `unknown`-shaped return types. */
   detail?: Record<string, string | number | boolean | null>;
 }
 
 export interface ExecutionStage {
-  name: "planner" | "router" | "tools" | "search" | "scenePlanning" | "adapter" | "generation" | "renderPrep";
+  name:
+    | "planner"
+    | "router"
+    | "tools"
+    | "search"
+    | "scenePlanning"
+    | "adapter"
+    | "generation"
+    | "renderPrep";
   status: ExecutionStatus;
   durationMs: number;
 }
@@ -111,7 +127,12 @@ export interface ScenePlanningSection {
   identifiedMisconceptions: string[];
   /** Structural issues from validateScenePlan.ts — "warning" issues don't
    *  block the pipeline, only EMPTY_PLAN (an "error") does. */
-  validationIssues: { code: string; severity: "warning" | "error"; message: string; sceneId?: number }[];
+  validationIssues: {
+    code: string;
+    severity: "warning" | "error";
+    message: string;
+    sceneId?: number;
+  }[];
   tokensUsed?: number;
   startedAt: number;
   endedAt: number;

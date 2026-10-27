@@ -8,7 +8,7 @@ export type SourceSnippet = {
 export async function searchTrustedSources(
   query: string,
   domains: string[],
-  options?: { topic?: "general" | "news"; days?: number }
+  options?: { topic?: "general" | "news"; days?: number },
 ): Promise<SourceSnippet[]> {
   const response = await fetch("https://api.tavily.com/search", {
     method: "POST",
@@ -39,13 +39,4 @@ export async function searchTrustedSources(
     content: typeof r.content === "string" ? r.content.slice(0, 800) : "",
     publishedDate: typeof r.published_date === "string" ? r.published_date : undefined,
   }));
-  const NEWS_DOMAINS = [
-  "bbc.com",
-  "aljazeera.com",
-  "cnn.com",
-  "reuters.com",
-  "apnews.com",
-  "npr.org",
-  "theguardian.com",
-];
 }

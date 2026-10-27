@@ -1,0 +1,229 @@
+{
+  "title": "Parabola from a simple question",
+  "level": "high-school",
+  "solution": {
+    "question": "What shape does y = x^2 make when we plot points?",
+    "given": ["The rule is y = x^2.", "We are plotting points that satisfy the rule."],
+    "find": "The shape formed by the plotted points.",
+    "method": "Evaluate the rule at opposite x-values and compare the resulting y-values.",
+    "variables": [
+      { "symbol": "x", "definition": "The input coordinate.", "units": null },
+      { "symbol": "y", "definition": "The output value x squared.", "units": null }
+    ],
+    "answer": "It makes an upward-opening parabola with its vertex at (0, 0).",
+    "exactValue": null,
+    "approximateValue": null,
+    "units": null,
+    "steps": [
+      {
+        "id": "step-1",
+        "questionPart": "y = x^2",
+        "role": "calculation",
+        "reasoning": "At x = 0, y = 0^2 = 0, so the graph passes through the origin.",
+        "calculationRefs": []
+      },
+      {
+        "id": "step-2",
+        "questionPart": "plot points",
+        "role": "reasoning",
+        "reasoning": "At x = 1 and x = -1, y = 1 in both cases, so the graph is symmetric about the y-axis.",
+        "calculationRefs": []
+      },
+      {
+        "id": "step-3",
+        "questionPart": "What shape does y = x^2 make",
+        "role": "answer",
+        "reasoning": "At x = 2 and x = -2, y = 4; as the absolute value of x grows, both arms rise into a U-shaped parabola.",
+        "calculationRefs": []
+      }
+    ],
+    "calculations": [],
+    "finalCalculationId": null,
+    "verification": "Opposite inputs produce equal outputs, and larger absolute inputs produce larger nonnegative outputs."
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "planSceneId": "teaching-1",
+      "stepRefs": ["step-1"],
+      "visualPurpose": "Show the rule as a curve so the learner can identify its shape.",
+      "caption": "The parabola appears from a simple rule",
+      "narration": "What shape does y = x^2 make when we plot points?",
+      "duration": 6,
+      "view": { "xRange": [-4, 4], "yRange": [-1, 10], "grid": true, "axes": true },
+      "actions": [
+        { "t": 0.0, "do": "drawAxes" },
+        { "t": 0.9, "do": "plotFunction", "expr": "x^2", "color": "blue", "strokeWidth": 4 },
+        { "t": 2.8, "do": "equationStep", "latex": "y = x^2", "color": "blue" }
+      ],
+      "equation": { "latex": "y = x^2", "reveal": "write" }
+    },
+    {
+      "id": 2,
+      "planSceneId": "teaching-2",
+      "stepRefs": ["step-1", "step-2"],
+      "visualPurpose": "Show how opposite inputs create matching heights along the curve.",
+      "caption": "A point moves along the curve",
+      "narration": "As x changes, the point climbs along the parabola and leaves a trail behind it.",
+      "duration": 6,
+      "view": { "xRange": [-4, 4], "yRange": [-1, 10], "grid": true, "axes": true },
+      "actions": [
+        { "t": 0.0, "do": "drawAxes" },
+        { "t": 0.3, "do": "plotFunction", "expr": "x^2", "color": "blue", "strokeWidth": 4 },
+        {
+          "t": 1.2,
+          "do": "movePoint",
+          "expr": "x^2",
+          "x": -2,
+          "toX": 2,
+          "color": "red",
+          "radius": 7,
+          "label": "P",
+          "trail": true
+        },
+        {
+          "t": 3.3,
+          "do": "showLabel",
+          "x": 1.7,
+          "y": 3.8,
+          "text": "P",
+          "color": "red",
+          "follow": true
+        }
+      ],
+      "equation": { "latex": "y = x^2", "reveal": "write" }
+    },
+    {
+      "id": 3,
+      "planSceneId": "teaching-3",
+      "stepRefs": ["step-2"],
+      "visualPurpose": "Compare the equal outputs for opposite inputs.",
+      "caption": "Opposite inputs give equal heights",
+      "narration": "At x = 1 and x = -1, squaring gives y = 1 for both points.",
+      "duration": 6,
+      "view": { "xRange": [-4, 4], "yRange": [-1, 10], "grid": true, "axes": true },
+      "actions": [
+        { "t": 0.0, "do": "drawAxes" },
+        { "t": 0.4, "do": "plotFunction", "expr": "x^2", "color": "blue", "strokeWidth": 4 },
+        {
+          "t": 1.1,
+          "do": "plotPoints",
+          "points": [
+            [-1, 1],
+            [1, 1]
+          ],
+          "color": "yellow",
+          "radius": 8
+        },
+        { "t": 2.5, "do": "showLabel", "x": -1, "y": 1.7, "text": "(-1, 1)", "color": "yellow" },
+        { "t": 3.5, "do": "showLabel", "x": 1, "y": 1.7, "text": "(1, 1)", "color": "yellow" }
+      ],
+      "equation": { "latex": "(-1)^2 = 1^2 = 1", "reveal": "write" }
+    },
+    {
+      "id": 4,
+      "planSceneId": "teaching-4",
+      "stepRefs": ["step-3"],
+      "visualPurpose": "Show how larger opposite inputs rise to the same height.",
+      "caption": "Squaring larger inputs raises both arms",
+      "narration": "At x = 2 and x = -2, the output is four, farther up the curve.",
+      "duration": 6,
+      "view": { "xRange": [-4, 4], "yRange": [-1, 10], "grid": true, "axes": true },
+      "actions": [
+        { "t": 0.0, "do": "drawAxes" },
+        { "t": 0.4, "do": "plotFunction", "expr": "x^2", "color": "blue", "strokeWidth": 4 },
+        {
+          "t": 1.1,
+          "do": "plotPoints",
+          "points": [
+            [-2, 4],
+            [2, 4]
+          ],
+          "color": "yellow",
+          "radius": 8
+        },
+        { "t": 2.5, "do": "showLabel", "x": -2, "y": 4.7, "text": "(-2, 4)", "color": "yellow" },
+        { "t": 3.5, "do": "showLabel", "x": 2, "y": 4.7, "text": "(2, 4)", "color": "yellow" }
+      ],
+      "equation": { "latex": "(-2)^2 = 2^2 = 4", "reveal": "write" }
+    },
+    {
+      "id": 5,
+      "planSceneId": "teaching-5",
+      "stepRefs": ["step-3"],
+      "visualPurpose": "Contrast squaring and doubling to distinguish the operations.",
+      "caption": "Do not confuse squaring with doubling",
+      "narration": "Squaring -2 gives 4, not -4; doubling -2 would be a different operation.",
+      "duration": 6,
+      "view": { "xRange": [-4, 4], "yRange": [-1, 10], "grid": true, "axes": true },
+      "actions": [
+        { "t": 0.0, "do": "drawAxes" },
+        { "t": 0.4, "do": "plotFunction", "expr": "x^2", "color": "blue", "strokeWidth": 4 },
+        {
+          "t": 1.1,
+          "do": "table",
+          "headers": ["Operation", "At x = -2"],
+          "rows": [
+            ["Square", "(-2)^2 = 4"],
+            ["Double", "2(-2) = -4"]
+          ],
+          "highlightRow": 0
+        },
+        { "t": 3.5, "do": "equationStep", "latex": "x^2 \\ne 2x", "color": "yellow" }
+      ],
+      "equation": { "latex": "(-2)^2 = 4 \\ne 2(-2) = -4", "reveal": "write" }
+    },
+    {
+      "id": 6,
+      "planSceneId": "teaching-6",
+      "stepRefs": ["step-1", "step-2", "step-3"],
+      "visualPurpose": "Summarize the symmetric points that form the parabola.",
+      "caption": "The pattern is clear",
+      "narration": "The graph is an upward-opening parabola, symmetric about the y-axis, with vertex at the origin.",
+      "duration": 7,
+      "view": { "xRange": [-4, 4], "yRange": [-1, 10], "grid": true, "axes": true },
+      "actions": [
+        { "t": 0.0, "do": "drawAxes" },
+        { "t": 0.4, "do": "plotFunction", "expr": "x^2", "color": "blue", "strokeWidth": 4 },
+        { "t": 1.3, "do": "equationStep", "latex": "y = x^2", "color": "blue" },
+        {
+          "t": 2.5,
+          "do": "plotPoints",
+          "points": [
+            [-2, 4],
+            [-1, 1],
+            [0, 0],
+            [1, 1],
+            [2, 4]
+          ],
+          "color": "yellow",
+          "radius": 6
+        },
+        {
+          "t": 4.5,
+          "do": "showLabel",
+          "x": 1.6,
+          "y": 7.0,
+          "text": "upward-opening parabola",
+          "color": "yellow"
+        }
+      ],
+      "equation": { "latex": "y = x^2", "reveal": "write" }
+    }
+  ],
+  "takeaway": "The rule y = x^2 makes an upward-opening parabola, symmetric about the y-axis, with vertex at (0, 0).",
+  "challenge": {
+    "question": "What is y when x = -2?",
+    "hint": "Substitute -2 for x, then multiply -2 by itself.",
+    "answer": "y = (-2)^2 = 4.",
+    "explanation": "Substitute -2 for x, then square the input: (-2) times (-2) equals 4.",
+    "remediation": {
+      "likelyMisconception": "You may be mixing up the input value with its squared output.",
+      "simplerQuestion": "For y = x^2, what is y when x = 1?",
+      "simplerHint": "Substitute 1 for x, then multiply 1 by itself.",
+      "simplerAnswer": "1",
+      "explanation": "Substituting 1 gives 1 squared, which equals 1.",
+      "stepRef": "step-3"
+    }
+  }
+}

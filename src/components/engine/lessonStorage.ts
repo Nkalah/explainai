@@ -39,7 +39,7 @@ export const preferences = {
   getSpeed(): number {
     const raw = safeGet("explainai_speed");
     const n = raw ? parseFloat(raw) : 1;
-    return [0.5, 1, 1.25, 1.5, 2].includes(n) ? n : 1;
+    return [0.5, 0.75, 1, 1.25, 1.5, 2].includes(n) ? n : 1;
   },
   setSpeed(speed: number): void {
     safeSet("explainai_speed", String(speed));

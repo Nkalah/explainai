@@ -194,8 +194,8 @@ export function Whiteboard() {
       {/* caption */}
       <div className="pointer-events-none relative flex flex-shrink-0 items-center justify-between gap-3 border-t bg-background/80 px-4 py-2.5 backdrop-blur">
         <div className="min-w-0 truncate text-xs text-muted-foreground">
-          <span className="text-foreground">Narration:</span>{" "}
-          "…subtract seven from both sides to isolate the variable."
+          <span className="text-foreground">Narration:</span> "…subtract seven from both sides to
+          isolate the variable."
         </div>
         <div className="hidden flex-shrink-0 items-center gap-1.5 sm:flex">
           {[...Array(24)].map((_, i) => (
@@ -203,9 +203,9 @@ export function Whiteboard() {
               key={i}
               className="block w-[2px] rounded-full bg-brand/70"
               style={{
-  height: `${(6 + Math.abs(Math.sin(i * 0.9)) * 12).toFixed(2)}px`,
-  opacity: Number((0.35 + Math.abs(Math.sin(i * 0.9)) * 0.65).toFixed(2)),
-}}
+                height: `${(6 + Math.abs(Math.sin(i * 0.9)) * 12).toFixed(2)}px`,
+                opacity: Number((0.35 + Math.abs(Math.sin(i * 0.9)) * 0.65).toFixed(2)),
+              }}
             />
           ))}
         </div>

@@ -22,7 +22,10 @@ export function PracticePanel({
   onGeneratePractice,
 }: {
   lesson: EngineLesson;
-  onGeneratePractice?: (lesson: EngineLesson, difficulty: PracticeDifficulty) => Promise<PracticeProblem[]>;
+  onGeneratePractice?: (
+    lesson: EngineLesson,
+    difficulty: PracticeDifficulty,
+  ) => Promise<PracticeProblem[]>;
 }) {
   const [difficulty, setDifficulty] = useState<PracticeDifficulty>("Easy");
   const [problems, setProblems] = useState<PracticeProblem[] | null>(null);
@@ -34,7 +37,9 @@ export function PracticePanel({
     setLoading(true);
     setRevealed({});
     try {
-      const p = onGeneratePractice ? await onGeneratePractice(lesson, diff) : await mockPractice(lesson, diff);
+      const p = onGeneratePractice
+        ? await onGeneratePractice(lesson, diff)
+        : await mockPractice(lesson, diff);
       setProblems(p);
     } finally {
       setLoading(false);
@@ -50,7 +55,9 @@ export function PracticePanel({
             onClick={() => generate(d)}
             className={
               "flex-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors " +
-              (difficulty === d && problems ? "border-brand/50 bg-brand/10 text-foreground" : "hover:bg-secondary")
+              (difficulty === d && problems
+                ? "border-brand/50 bg-brand/10 text-foreground"
+                : "hover:bg-secondary")
             }
           >
             {d}
@@ -111,12 +118,15 @@ export function PracticePanel({
   );
 }
 
-async function mockPractice(lesson: EngineLesson, difficulty: PracticeDifficulty): Promise<PracticeProblem[]> {
+async function mockPractice(
+  lesson: EngineLesson,
+  difficulty: PracticeDifficulty,
+): Promise<PracticeProblem[]> {
   await new Promise((r) => setTimeout(r, 500));
   return Array.from({ length: 3 }).map((_, i) => ({
     id: `p${i}`,
     prompt: `${difficulty} placeholder problem #${i + 1} based on "${lesson.title}".`,
-    hint: "Wire \"onGeneratePractice\" to your real generation call to replace this placeholder hint.",
+    hint: 'Wire "onGeneratePractice" to your real generation call to replace this placeholder hint.',
     answer: "Placeholder answer.",
   }));
 }

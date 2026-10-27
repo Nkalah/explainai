@@ -6,26 +6,71 @@
 // into renderer-specific structures (today: engineTypes.ts's Scene/SceneObject).
 
 export type SceneCategory =
-  | "Explanation" | "Example" | "Practice" | "Assessment" | "Transition" | "Recap";
+  "Explanation" | "Example" | "Practice" | "Assessment" | "Transition" | "Recap";
 
 export type EducationalIntent =
-  | "IntroduceConcept" | "RecallPriorKnowledge" | "BuildIntuition" | "ShowAnalogy"
-  | "VisualizeProcess" | "CompareIdeas" | "TransformEquation" | "TraceExecution"
-  | "ExplainCause" | "ExplainEffect" | "DemonstrateAlgorithm" | "BreakIntoSteps"
-  | "CorrectMisconception" | "Summarize" | "AssessUnderstanding" | "Practice" | "Review";
+  | "IntroduceConcept"
+  | "RecallPriorKnowledge"
+  | "BuildIntuition"
+  | "ShowAnalogy"
+  | "VisualizeProcess"
+  | "CompareIdeas"
+  | "TransformEquation"
+  | "TraceExecution"
+  | "ExplainCause"
+  | "ExplainEffect"
+  | "DemonstrateAlgorithm"
+  | "BreakIntoSteps"
+  | "CorrectMisconception"
+  | "Summarize"
+  | "AssessUnderstanding"
+  | "Practice"
+  | "Review";
 
 // Reusable across every subject — a math "Transform" (e.g. algebraic
 // manipulation) and a history "Transform" (e.g. a territory changing hands
 // on a map) are the same teaching action at this level of abstraction.
 export type TeachingPrimitive =
-  | "Reveal" | "Hide" | "Write" | "Erase" | "Highlight" | "Underline" | "Circle"
-  | "Zoom" | "Focus" | "Compare" | "Split" | "Merge" | "Transform" | "Rotate"
-  | "Move" | "Trace" | "Label" | "Count" | "Expand" | "Collapse" | "Pause"
-  | "Question" | "Answer" | "Repeat" | "Summarize";
+  | "Reveal"
+  | "Hide"
+  | "Write"
+  | "Erase"
+  | "Highlight"
+  | "Underline"
+  | "Circle"
+  | "Zoom"
+  | "Focus"
+  | "Compare"
+  | "Split"
+  | "Merge"
+  | "Transform"
+  | "Rotate"
+  | "Move"
+  | "Trace"
+  | "Label"
+  | "Count"
+  | "Expand"
+  | "Collapse"
+  | "Pause"
+  | "Question"
+  | "Answer"
+  | "Repeat"
+  | "Summarize";
 
 export type VisualGoalType =
-  | "Equation" | "Graph" | "Table" | "Diagram" | "Flowchart" | "Timeline"
-  | "CodeTrace" | "Shape" | "Chart" | "ArrayOrStack" | "Icon" | "Comparison" | "None";
+  | "Equation"
+  | "Graph"
+  | "Table"
+  | "Diagram"
+  | "Flowchart"
+  | "Timeline"
+  | "CodeTrace"
+  | "Shape"
+  | "Chart"
+  | "ArrayOrStack"
+  | "Icon"
+  | "Comparison"
+  | "None";
 
 export type InteractionType = "None" | "WaitForContinue" | "PromptQuestion" | "RevealOnDemand";
 export type CameraFocus = "wide" | "focused" | "detail";

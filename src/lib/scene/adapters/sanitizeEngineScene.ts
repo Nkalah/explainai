@@ -1,21 +1,70 @@
-import type { AnimationType, ObjectType, Scene, SceneObject, Vec2 } from "../../engineTypes";
+import type { AnimationType, ObjectType, Scene, SceneAnnotation, SceneObject, Vec2, VisualStrategy, SceneImageSource } from "../../engineTypes";
 
 export const VALID_OBJECT_TYPES: ObjectType[] = [
-  "text", "equation", "label", "code",
-  "rectangle", "circle", "triangle", "line", "arrow", "doubleArrow",
-  "graph", "barChart", "pieChart", "scatterPlot",
-  "table", "array", "stack",
-  "highlightBox", "callout", "icon",
+  "text",
+  "equation",
+  "label",
+  "code",
+  "rectangle",
+  "circle",
+  "triangle",
+  "line",
+  "arrow",
+  "doubleArrow",
+  "graph",
+  "barChart",
+  "pieChart",
+  "scatterPlot",
+  "table",
+  "array",
+  "stack",
+  "highlightBox",
+  "callout",
+  "icon",
+  "image",
+  "annotation",
 ];
 
 export const VALID_ANIMATION_TYPES: AnimationType[] = [
-  "write", "draw", "erase", "fadeIn", "fadeOut", "highlight",
-  "underline", "circle", "pulse", "zoom", "move", "rotate",
-  "grow", "shrink", "slideLeft", "slideRight", "slideUp", "slideDown",
-  "reveal", "blink",
+  "write",
+  "draw",
+  "erase",
+  "fadeIn",
+  "fadeOut",
+  "highlight",
+  "underline",
+  "circle",
+  "pulse",
+  "zoom",
+  "move",
+  "rotate",
+  "grow",
+  "shrink",
+  "slideLeft",
+  "slideRight",
+  "slideUp",
+  "slideDown",
+  "reveal",
+  "blink",
+  "trace",
+  "staggerFade",
 ];
 
 export const VALID_COLORS = ["foreground", "brand", "muted"] as const;
+
+export const VALID_VISUAL_STRATEGIES: VisualStrategy[] = [
+  "whiteboard-only",
+  "image-primary",
+  "image-annotation",
+  "diagram-overlay",
+  "comparison",
+];
+
+export const VALID_SCENE_IMAGE_SOURCES: SceneImageSource[] = [
+  "generated-svg",
+  "external-url",
+  "fallback-svg",
+];
 
 function clampNum(v: any, min: number, max: number, fallback: number): number {
   const n = typeof v === "number" && !Number.isNaN(v) ? v : fallback;
@@ -58,6 +107,41 @@ export function sanitizeEngineObject(raw: any, index: number): SceneObject | nul
 
   if (typeof raw.text === "string") obj.text = raw.text.slice(0, 80);
   if (typeof raw.iconName === "string") obj.iconName = raw.iconName.slice(0, 40);
+  if (typeof raw.source === "string") obj.source = raw.source.slice(0, 120);
+  if (typeof raw.imageUrl === "string") obj.imageUrl = raw.imageUrl.slice(0, 500);
+  if (typeof raw.imageSvg === "string") obj.imageSvg = raw.imageSvg.slice(0, 5000);
+
+  if (type === "image") {
+    if (!obj.imageUrl && !obj.imageSvg) return null;
+  }
+
+  if (Array.isArray(raw.annotations)) {
+    const annotations: SceneAnnotation[] = raw.annotations
+      .filter((a: any) => a && typeof a === "object")
+      .slice(0, 8)
+      .map((a: any) => ({
+        id: typeof a.id === "string" ? a.id.slice(0, 40) : `ann_${Math.random().toString(36).slice(2, 8)}`,
+        type: ["arrow", "label", "highlight", "circle", "callout"].includes(a.type) ? a.type : "label",
+        position: {
+          x: clampNum(a.position?.x, 0, 100, 50),
+          y: clampNum(a.position?.y, 0, 100, 50),
+        },
+        targetPosition: a.targetPosition
+          ? {
+              x: clampNum(a.targetPosition.x, 0, 100, 50),
+              y: clampNum(a.targetPosition.y, 0, 100, 50),
+            }
+          : undefined,
+        text: typeof a.text === "string" ? a.text.slice(0, 80) : undefined,
+        color: VALID_COLORS.includes(a.color) ? a.color : "brand",
+        animation: {
+          type: VALID_ANIMATION_TYPES.includes(a.animation?.type) ? a.animation.type : "fadeIn",
+          start: clampNum(a.animation?.start, 0, 60, 0),
+          duration: clampNum(a.animation?.duration, 0.1, 10, 0.6),
+        },
+      }));
+    if (annotations.length > 0) obj.annotations = annotations;
+  }
 
   if (type === "graph" || type === "scatterPlot") {
     obj.points = sanitizeVec2Array(raw.points, 30);
@@ -85,7 +169,10 @@ export function sanitizeEngineObject(raw: any, index: number): SceneObject | nul
   if (type === "table") {
     const headers = Array.isArray(raw.headers) ? raw.headers.map(String).slice(0, 6) : undefined;
     const rows = Array.isArray(raw.rows)
-      ? raw.rows.filter((r: any) => Array.isArray(r)).map((r: any[]) => r.map(String).slice(0, 6)).slice(0, 8)
+      ? raw.rows
+          .filter((r: any) => Array.isArray(r))
+          .map((r: any[]) => r.map(String).slice(0, 6))
+          .slice(0, 8)
       : undefined;
     if (!headers || !rows || rows.length === 0) return null;
     obj.headers = headers;
@@ -93,7 +180,9 @@ export function sanitizeEngineObject(raw: any, index: number): SceneObject | nul
   }
 
   if ((type === "array" || type === "stack") && Array.isArray(raw.values)) {
-    const values = raw.values.slice(0, 12).map((v: any) => (typeof v === "number" ? v : String(v).slice(0, 8)));
+    const values = raw.values
+      .slice(0, 12)
+      .map((v: any) => (typeof v === "number" ? v : String(v).slice(0, 8)));
     if (values.length === 0) return null;
     obj.values = values;
   }
@@ -125,5 +214,45 @@ export function sanitizeEngineScene(raw: any, index: number): Scene | null {
     transcript: typeof raw.transcript === "string" ? raw.transcript.slice(0, 500) : "",
     objects,
     waitForUser: Boolean(raw.waitForUser),
+    visualStrategy: VALID_VISUAL_STRATEGIES.includes(raw.visualStrategy) ? raw.visualStrategy : undefined,
+    learningGoal: typeof raw.learningGoal === "string" ? raw.learningGoal.slice(0, 200) : undefined,
+    importance: ["core", "supporting", "optional"].includes(raw.importance) ? raw.importance : undefined,
+    transition: typeof raw.transition === "string" ? raw.transition.slice(0, 120) : undefined,
+    replayable: Boolean(raw.replayable),
+    image: raw.image && typeof raw.image === "object"
+      ? {
+          url: typeof raw.image.url === "string" ? raw.image.url.slice(0, 500) : "",
+          prompt: typeof raw.image.prompt === "string" ? raw.image.prompt.slice(0, 500) : "",
+          alt: typeof raw.image.alt === "string" ? raw.image.alt.slice(0, 120) : "",
+          source: VALID_SCENE_IMAGE_SOURCES.includes(raw.image.source) ? raw.image.source : "fallback-svg",
+          strategy: VALID_VISUAL_STRATEGIES.includes(raw.image.strategy) ? raw.image.strategy : "whiteboard-only",
+        }
+      : undefined,
+    annotations: Array.isArray(raw.annotations)
+      ? raw.annotations
+          .filter((a: any) => a && typeof a === "object")
+          .slice(0, 8)
+          .map((a: any) => ({
+            id: typeof a.id === "string" ? a.id.slice(0, 40) : `ann_${Math.random().toString(36).slice(2, 8)}`,
+            type: ["arrow", "label", "highlight", "circle", "callout"].includes(a.type) ? a.type : "label",
+            position: {
+              x: clampNum(a.position?.x, 0, 100, 50),
+              y: clampNum(a.position?.y, 0, 100, 50),
+            },
+            targetPosition: a.targetPosition
+              ? {
+                  x: clampNum(a.targetPosition.x, 0, 100, 50),
+                  y: clampNum(a.targetPosition.y, 0, 100, 50),
+                }
+              : undefined,
+            text: typeof a.text === "string" ? a.text.slice(0, 80) : undefined,
+            color: VALID_COLORS.includes(a.color) ? a.color : "brand",
+            animation: {
+              type: VALID_ANIMATION_TYPES.includes(a.animation?.type) ? a.animation.type : "fadeIn",
+              start: clampNum(a.animation?.start, 0, 60, 0),
+              duration: clampNum(a.animation?.duration, 0.1, 10, 0.6),
+            },
+          }))
+      : undefined,
   };
 }

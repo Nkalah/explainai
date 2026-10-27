@@ -30,7 +30,8 @@ export function Footer() {
               <span className="text-[15px] font-medium">ExplainAI</span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              A personalized AI tutor that turns every question into a beautifully animated lesson video.
+              A personalized AI tutor that turns every question into a beautifully animated lesson
+              video.
             </p>
           </div>
           {cols.map((c) => (
@@ -41,7 +42,10 @@ export function Footer() {
               <ul className="space-y-3 text-sm">
                 {c.links.map((l) => (
                   <li key={l}>
-                    <a href="#" className="text-foreground/80 transition-colors hover:text-foreground">
+                    <a
+                      href="#"
+                      className="text-foreground/80 transition-colors hover:text-foreground"
+                    >
                       {l}
                     </a>
                   </li>

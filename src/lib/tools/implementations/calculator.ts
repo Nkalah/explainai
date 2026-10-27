@@ -18,9 +18,11 @@ function safeEvaluate(expr: string): number | null {
 export const calculator: Tool = {
   metadata: {
     name: "Calculator",
-    description: "Evaluates a plain arithmetic expression exactly, using real computation instead of LLM estimation.",
+    description:
+      "Evaluates a plain arithmetic expression exactly, using real computation instead of LLM estimation.",
     whenToUse: "The question or lesson plan contains a concrete arithmetic expression to evaluate.",
-    whenNeverToUse: "Symbolic algebra (use EquationSolver instead, when implemented), or when no explicit numeric expression is present.",
+    whenNeverToUse:
+      "Symbolic algebra (use EquationSolver instead, when implemented), or when no explicit numeric expression is present.",
     subjects: ["math"],
     priority: 9,
     canRunInParallel: true,
@@ -30,11 +32,19 @@ export const calculator: Tool = {
   async run(request) {
     const match = request.question.match(/[\d.\s+\-*/()]{3,}/);
     if (!match) {
-      return { tool: "Calculator", success: false, error: "No arithmetic expression found in question." };
+      return {
+        tool: "Calculator",
+        success: false,
+        error: "No arithmetic expression found in question.",
+      };
     }
     const value = safeEvaluate(match[0]);
     if (value === null) {
-      return { tool: "Calculator", success: false, error: "Expression could not be safely evaluated." };
+      return {
+        tool: "Calculator",
+        success: false,
+        error: "Expression could not be safely evaluated.",
+      };
     }
     return {
       tool: "Calculator",

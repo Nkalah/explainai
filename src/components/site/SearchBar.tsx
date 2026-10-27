@@ -43,12 +43,13 @@ export function SearchBar() {
             <input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent px-2 py-2 text-[15px] outline-none placeholder:text-muted-foreground"
+              aria-label="Your question"
+              className="min-w-0 flex-1 bg-transparent px-2 py-2 text-base outline-none placeholder:text-muted-foreground"
               placeholder="e.g. Explain photosynthesis to a 10-year-old"
             />
             <button
               type="submit"
-              className="inline-flex h-10 flex-shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-transform hover:scale-[1.02]"
+              className="inline-flex h-11 flex-shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-transform hover:scale-[1.02]"
             >
               Ask
             </button>
@@ -60,7 +61,7 @@ export function SearchBar() {
             <button
               key={s}
               onClick={() => goAsk(s)}
-              className="rounded-full border bg-background px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="min-h-11 rounded-full border bg-background px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {s}
             </button>

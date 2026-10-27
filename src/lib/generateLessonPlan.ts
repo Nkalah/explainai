@@ -8,53 +8,48 @@ import type {
 } from "./lessonPlan";
 
 const VALID_DIFFICULTIES: DifficultyLevel[] = [
-  "Elementary", "Middle School", "High School", "Beginner", "Intermediate", "Advanced", "University",
+  "Elementary",
+  "Middle School",
+  "High School",
+  "Beginner",
+  "Intermediate",
+  "Advanced",
+  "University",
 ];
 
 const VALID_STRATEGY_STEPS: TeachingStrategyStep[] = [
-  "Introduction", "Concept", "Analogy", "Visualization", "WorkedExample",
-  "Practice", "CommonMistakes", "Recap", "Quiz",
+  "Introduction",
+  "Concept",
+  "Analogy",
+  "Visualization",
+  "WorkedExample",
+  "Practice",
+  "CommonMistakes",
+  "Recap",
+  "Quiz",
 ];
 
 const VALID_VISUALS: VisualRecommendation[] = [
-  "Equation", "Graph", "Table", "Diagram", "Flowchart", "Timeline",
-  "CodeAnimation", "Shape", "Chart", "Array", "Stack", "Icon", "None",
+  "Equation",
+  "Graph",
+  "Table",
+  "Diagram",
+  "Flowchart",
+  "Timeline",
+  "CodeAnimation",
+  "Shape",
+  "Chart",
+  "Array",
+  "Stack",
+  "Icon",
+  "None",
 ];
 
 const VALID_EXPLANATION_MODES: ExplanationMode[] = ["visual-first", "text-first", "balanced"];
 
 export type GroqUsage = { prompt_tokens: number; completion_tokens: number; total_tokens: number };
 
-async function callGroqJson(messages: any[]): Promise<{ data: any; usage?: GroqUsage }> {
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
-      messages,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    console.error("Groq API error body (lesson planner):", errorBody);
-    throw new Error(`Groq API error: ${response.status} - ${errorBody}`);
-  }
-
-  const json = await response.json();
-  const raw = json.choices[0].message.content as string;
-  let data: any = null;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    console.error("Failed to parse lesson plan JSON:", raw);
-  }
-  return { data, usage: json.usage };
-}
+import { callGroqJson } from "./groqClient";
 
 function clampNum(v: any, min: number, max: number, fallback: number): number {
   const n = typeof v === "number" && !Number.isNaN(v) ? v : fallback;
@@ -86,18 +81,24 @@ function sanitizeInteractionPoints(raw: any): InteractionPoint[] {
 
 function sanitizePlan(raw: any): LessonPlan {
   return {
-    subject: typeof raw?.subject === "string" && raw.subject.trim() ? raw.subject.slice(0, 60) : "General",
+    subject:
+      typeof raw?.subject === "string" && raw.subject.trim() ? raw.subject.slice(0, 60) : "General",
     difficulty: VALID_DIFFICULTIES.includes(raw?.difficulty) ? raw.difficulty : "Intermediate",
     objective: typeof raw?.objective === "string" ? raw.objective.slice(0, 200) : "",
     estimatedDuration: clampNum(raw?.estimatedDuration, 30, 900, 120),
     prerequisites: Array.isArray(raw?.prerequisites)
-      ? raw.prerequisites.filter((p: any) => typeof p === "string").slice(0, 8).map((p: string) => p.slice(0, 80))
+      ? raw.prerequisites
+          .filter((p: any) => typeof p === "string")
+          .slice(0, 8)
+          .map((p: string) => p.slice(0, 80))
       : [],
     requiresPrerequisiteCheck: Boolean(raw?.requiresPrerequisiteCheck),
     teachingStrategy: sanitizeStrategy(raw?.teachingStrategy),
     useAnalogy: Boolean(raw?.useAnalogy),
     useWorkedExample: Boolean(raw?.useWorkedExample),
-    explanationMode: VALID_EXPLANATION_MODES.includes(raw?.explanationMode) ? raw.explanationMode : "balanced",
+    explanationMode: VALID_EXPLANATION_MODES.includes(raw?.explanationMode)
+      ? raw.explanationMode
+      : "balanced",
     recommendedVisuals: sanitizeVisuals(raw?.recommendedVisuals),
     includeAnimations: raw?.includeAnimations != null ? Boolean(raw.includeAnimations) : true,
     includeCodeExecution: Boolean(raw?.includeCodeExecution),
@@ -105,7 +106,8 @@ function sanitizePlan(raw: any): LessonPlan {
     includeQuiz: Boolean(raw?.includeQuiz),
     includePractice: Boolean(raw?.includePractice),
     confidence: clampNum(raw?.confidence, 0, 1, 0.7),
-    confidenceReason: typeof raw?.confidenceReason === "string" ? raw.confidenceReason.slice(0, 200) : "",
+    confidenceReason:
+      typeof raw?.confidenceReason === "string" ? raw.confidenceReason.slice(0, 200) : "",
     planningNotes: typeof raw?.planningNotes === "string" ? raw.planningNotes.slice(0, 300) : "",
   };
 }
@@ -116,7 +118,9 @@ function sanitizePlan(raw: any): LessonPlan {
  * always called from within another server function's handler — no need for
  * its own network round-trip from the client.
  */
-export async function generateLessonPlan(question: string): Promise<{ plan: LessonPlan; usage?: GroqUsage }> {
+export async function generateLessonPlan(
+  question: string,
+): Promise<{ plan: LessonPlan; usage?: GroqUsage }> {
   const { data, usage } = await callGroqJson([
     {
       role: "system",

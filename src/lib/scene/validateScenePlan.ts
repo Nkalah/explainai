@@ -1,4 +1,4 @@
-import type { ScenePlan } from "../scenePlan";
+import type { ScenePlan } from "./scenePlan";
 
 export type ScenePlanIssueCode =
   | "EMPTY_PLAN"

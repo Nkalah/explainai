@@ -1,5 +1,5 @@
 import * as LucideIcons from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SceneObject, Vec2 } from "@/lib/engineTypes";
 
 const colorVar: Record<string, string> = {
@@ -163,7 +163,9 @@ interface GraphFrame {
 }
 
 function buildGraphFrame(points: Vec2[]): GraphFrame {
-  const W = 100, H = 100, PAD = 16;
+  const W = 100,
+    H = 100,
+    PAD = 16;
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
   const minX = Math.min(0, ...xs);
@@ -171,8 +173,8 @@ function buildGraphFrame(points: Vec2[]): GraphFrame {
   const minY = Math.min(0, ...ys);
   const maxY = Math.max(0, ...ys) || 1;
 
-  const sx = (x: number) => PAD + ((x - minX) / ((maxX - minX) || 1)) * (W - 2 * PAD);
-  const sy = (y: number) => H - PAD - ((y - minY) / ((maxY - minY) || 1)) * (H - 2 * PAD);
+  const sx = (x: number) => PAD + ((x - minX) / (maxX - minX || 1)) * (W - 2 * PAD);
+  const sy = (y: number) => H - PAD - ((y - minY) / (maxY - minY || 1)) * (H - 2 * PAD);
 
   const clampedZeroX = Math.min(Math.max(0, minX), maxX);
   const clampedZeroY = Math.min(Math.max(0, minY), maxY);
@@ -198,28 +200,92 @@ function GraphAxes({ frame, color }: { frame: GraphFrame; color: string }) {
     <g>
       {/* gridlines */}
       {xTicks.map((t, i) => (
-        <line key={`gx${i}`} x1={sx(t)} y1={PAD} x2={sx(t)} y2={H - PAD} stroke={axisColor} strokeWidth="0.25" opacity="0.25" />
+        <line
+          key={`gx${i}`}
+          x1={sx(t)}
+          y1={PAD}
+          x2={sx(t)}
+          y2={H - PAD}
+          stroke={axisColor}
+          strokeWidth="0.25"
+          opacity="0.25"
+        />
       ))}
       {yTicks.map((t, i) => (
-        <line key={`gy${i}`} x1={PAD} y1={sy(t)} x2={W - PAD} y2={sy(t)} stroke={axisColor} strokeWidth="0.25" opacity="0.25" />
+        <line
+          key={`gy${i}`}
+          x1={PAD}
+          y1={sy(t)}
+          x2={W - PAD}
+          y2={sy(t)}
+          stroke={axisColor}
+          strokeWidth="0.25"
+          opacity="0.25"
+        />
       ))}
 
       {/* axes */}
-      <line x1={PAD} y1={y0} x2={W - PAD} y2={y0} stroke={axisColor} strokeWidth="0.6" opacity="0.7" />
-      <line x1={x0} y1={PAD} x2={x0} y2={H - PAD} stroke={axisColor} strokeWidth="0.6" opacity="0.7" />
+      <line
+        x1={PAD}
+        y1={y0}
+        x2={W - PAD}
+        y2={y0}
+        stroke={axisColor}
+        strokeWidth="0.6"
+        opacity="0.7"
+      />
+      <line
+        x1={x0}
+        y1={PAD}
+        x2={x0}
+        y2={H - PAD}
+        stroke={axisColor}
+        strokeWidth="0.6"
+        opacity="0.7"
+      />
 
       {/* axis arrowheads */}
-      <path d={`M ${W - PAD - 2.5} ${y0 - 1.5} L ${W - PAD} ${y0} L ${W - PAD - 2.5} ${y0 + 1.5}`} fill="none" stroke={axisColor} strokeWidth="0.6" opacity="0.7" />
-      <path d={`M ${x0 - 1.5} ${PAD + 2.5} L ${x0} ${PAD} L ${x0 + 1.5} ${PAD + 2.5}`} fill="none" stroke={axisColor} strokeWidth="0.6" opacity="0.7" />
+      <path
+        d={`M ${W - PAD - 2.5} ${y0 - 1.5} L ${W - PAD} ${y0} L ${W - PAD - 2.5} ${y0 + 1.5}`}
+        fill="none"
+        stroke={axisColor}
+        strokeWidth="0.6"
+        opacity="0.7"
+      />
+      <path
+        d={`M ${x0 - 1.5} ${PAD + 2.5} L ${x0} ${PAD} L ${x0 + 1.5} ${PAD + 2.5}`}
+        fill="none"
+        stroke={axisColor}
+        strokeWidth="0.6"
+        opacity="0.7"
+      />
 
       {/* tick labels */}
       {xTicks.map((t, i) => (
-        <text key={`tx${i}`} x={sx(t)} y={y0 + 4.5} fontSize="3.2" textAnchor="middle" fill={axisColor} stroke="none" opacity="0.85">
+        <text
+          key={`tx${i}`}
+          x={sx(t)}
+          y={y0 + 4.5}
+          fontSize="3.2"
+          textAnchor="middle"
+          fill={axisColor}
+          stroke="none"
+          opacity="0.85"
+        >
           {formatTick(t)}
         </text>
       ))}
       {yTicks.map((t, i) => (
-        <text key={`ty${i}`} x={x0 - 2} y={sy(t) + 1} fontSize="3.2" textAnchor="end" fill={axisColor} stroke="none" opacity="0.85">
+        <text
+          key={`ty${i}`}
+          x={x0 - 2}
+          y={sy(t) + 1}
+          fontSize="3.2"
+          textAnchor="end"
+          fill={axisColor}
+          stroke="none"
+          opacity="0.85"
+        >
           {formatTick(t)}
         </text>
       ))}
@@ -243,6 +309,14 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
     zIndex: obj.layer ?? 1,
     ...animationStyle(obj),
   };
+
+  if (obj.type === "image") {
+    return <ImageObjectView obj={obj} style={style} />;
+  }
+
+  if (obj.type === "annotation") {
+    return <AnnotationObjectView obj={obj} style={style} color={color} />;
+  }
 
   switch (obj.type) {
     case "text":
@@ -302,7 +376,14 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
 
     case "highlightBox":
       return (
-        <div style={{ ...style, border: `2px solid ${color}`, borderRadius: 8, background: "transparent" }} />
+        <div
+          style={{
+            ...style,
+            border: `2px solid ${color}`,
+            borderRadius: 8,
+            background: "transparent",
+          }}
+        />
       );
 
     case "icon": {
@@ -317,45 +398,110 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
     case "rectangle":
       return (
         <svg style={style} viewBox="0 0 100 100" className="overflow-visible">
-          <rect x="5" y="5" width="90" height="90" fill="none" stroke={color} strokeWidth="2.5" className="stroke-draw" />
+          <rect
+            x="5"
+            y="5"
+            width="90"
+            height="90"
+            fill="none"
+            stroke={color}
+            strokeWidth="2.5"
+            className="stroke-draw"
+          />
         </svg>
       );
 
     case "circle":
       return (
         <svg style={style} viewBox="0 0 100 100" className="overflow-visible">
-          <circle cx="50" cy="50" r="45" fill="none" stroke={color} strokeWidth="2.5" className="stroke-draw" />
+          <circle
+            cx="50"
+            cy="50"
+            r="45"
+            fill="none"
+            stroke={color}
+            strokeWidth="2.5"
+            className="stroke-draw"
+          />
         </svg>
       );
 
     case "triangle":
       return (
         <svg style={style} viewBox="0 0 100 100" className="overflow-visible">
-          <polygon points="50,5 5,95 95,95" fill="none" stroke={color} strokeWidth="2.5" className="stroke-draw" />
+          <polygon
+            points="50,5 5,95 95,95"
+            fill="none"
+            stroke={color}
+            strokeWidth="2.5"
+            className="stroke-draw"
+          />
         </svg>
       );
 
     case "line":
       return (
         <svg style={style} viewBox="0 0 100 100" className="overflow-visible">
-          <line x1="5" y1="95" x2="95" y2="5" stroke={color} strokeWidth="2.5" className="stroke-draw" />
+          <line
+            x1="5"
+            y1="95"
+            x2="95"
+            y2="5"
+            stroke={color}
+            strokeWidth="2.5"
+            className="stroke-draw"
+          />
         </svg>
       );
 
     case "arrow":
       return (
         <svg style={style} viewBox="0 0 100 40" className="overflow-visible">
-          <line x1="5" y1="20" x2="80" y2="20" stroke={color} strokeWidth="2.5" className="stroke-draw" />
-          <path d="M65 8 L85 20 L65 32" fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
+          <line
+            x1="5"
+            y1="20"
+            x2="80"
+            y2="20"
+            stroke={color}
+            strokeWidth="2.5"
+            className="stroke-draw"
+          />
+          <path
+            d="M65 8 L85 20 L65 32"
+            fill="none"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
         </svg>
       );
 
     case "doubleArrow":
       return (
         <svg style={style} viewBox="0 0 100 40" className="overflow-visible">
-          <line x1="15" y1="20" x2="85" y2="20" stroke={color} strokeWidth="2.5" className="stroke-draw" />
-          <path d="M35 8 L15 20 L35 32" fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
-          <path d="M65 8 L85 20 L65 32" fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
+          <line
+            x1="15"
+            y1="20"
+            x2="85"
+            y2="20"
+            stroke={color}
+            strokeWidth="2.5"
+            className="stroke-draw"
+          />
+          <path
+            d="M35 8 L15 20 L35 32"
+            fill="none"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M65 8 L85 20 L65 32"
+            fill="none"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
         </svg>
       );
 
@@ -436,7 +582,13 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
       const slices = obj.slices ?? [];
       const total = slices.reduce((s, x) => s + x.value, 0) || 1;
       let acc = 0;
-      const hues = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)", "var(--color-chart-4)", "var(--color-chart-5)"];
+      const hues = [
+        "var(--color-chart-1)",
+        "var(--color-chart-2)",
+        "var(--color-chart-3)",
+        "var(--color-chart-4)",
+        "var(--color-chart-5)",
+      ];
       return (
         <svg style={style} viewBox="0 0 100 100" className="overflow-visible">
           {slices.map((s, i) => {
@@ -444,8 +596,10 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
             acc += s.value;
             const end = (acc / total) * 2 * Math.PI;
             const large = end - start > Math.PI ? 1 : 0;
-            const x1 = 50 + 45 * Math.sin(start), y1 = 50 - 45 * Math.cos(start);
-            const x2 = 50 + 45 * Math.sin(end), y2 = 50 - 45 * Math.cos(end);
+            const x1 = 50 + 45 * Math.sin(start),
+              y1 = 50 - 45 * Math.cos(start);
+            const x2 = 50 + 45 * Math.sin(end),
+              y2 = 50 - 45 * Math.cos(end);
             return (
               <path
                 key={i}
@@ -470,7 +624,10 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
             <thead>
               <tr>
                 {(obj.headers ?? []).map((h, i) => (
-                  <th key={i} className="whitespace-nowrap border-b px-2 py-1 text-left font-medium">
+                  <th
+                    key={i}
+                    className="whitespace-nowrap border-b px-2 py-1 text-left font-medium"
+                  >
                     {h}
                   </th>
                 ))}
@@ -480,7 +637,10 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
               {(obj.rows ?? []).map((row, ri) => (
                 <tr key={ri}>
                   {row.map((c, ci) => (
-                    <td key={ci} className="whitespace-nowrap border-b px-2 py-1 text-muted-foreground">
+                    <td
+                      key={ci}
+                      className="whitespace-nowrap border-b px-2 py-1 text-muted-foreground"
+                    >
                       {c}
                     </td>
                   ))}
@@ -512,7 +672,14 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
 
     case "stack":
       return (
-        <div style={{ ...style, display: "flex", flexDirection: "column-reverse", alignItems: "center" }}>
+        <div
+          style={{
+            ...style,
+            display: "flex",
+            flexDirection: "column-reverse",
+            alignItems: "center",
+          }}
+        >
           {(obj.values ?? []).map((v, i) => (
             <div
               key={i}
@@ -532,4 +699,129 @@ export function SceneObjectView({ obj }: { obj: SceneObject }) {
     default:
       return null;
   }
+}
+
+function ImageObjectView({ obj, style }: { obj: SceneObject; style: React.CSSProperties }) {
+  const [errored, setErrored] = useState(false);
+
+  if (obj.imageSvg) {
+    return (
+      <div
+        style={{
+          ...style,
+          maxWidth: "88%",
+          maxHeight: "88%",
+        }}
+        className="overflow-hidden rounded-xl shadow-lg"
+        dangerouslySetInnerHTML={{ __html: obj.imageSvg }}
+      />
+    );
+  }
+
+  if (obj.imageUrl && !errored) {
+    return (
+      <img
+        src={obj.imageUrl}
+        alt={obj.text || "Educational illustration"}
+        style={{
+          ...style,
+          maxWidth: "88%",
+          maxHeight: "88%",
+          objectFit: "contain",
+        }}
+        className="rounded-xl shadow-lg"
+        onError={() => setErrored(true)}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        ...style,
+        maxWidth: "88%",
+        maxHeight: "88%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--color-secondary)",
+        borderRadius: 12,
+        border: `2px dashed ${colorVar[obj.color ?? "foreground"]}`,
+      }}
+      className="px-4 py-3 text-center text-xs text-muted-foreground"
+    >
+      {obj.text || "Visual content"}
+    </div>
+  );
+}
+
+function AnnotationObjectView({
+  obj,
+  style,
+  color,
+}: {
+  obj: SceneObject;
+  style: React.CSSProperties;
+  color: string;
+}) {
+  const target = obj.targetPosition as Vec2 | undefined;
+
+  if (obj.type === "annotation" && target) {
+    return (
+      <svg
+        style={{
+          ...style,
+          width: "60%",
+          height: "40%",
+          overflow: "visible",
+          pointerEvents: "none",
+        }}
+        viewBox="0 0 100 60"
+        className="overflow-visible"
+      >
+        <defs>
+          <marker
+            id={`arrowhead-${obj.id}`}
+            markerWidth="10"
+            markerHeight="7"
+            refX="9"
+            refY="3.5"
+            orient="auto"
+          >
+            <polygon points="0 0, 10 3.5, 0 7" fill={color} />
+          </marker>
+        </defs>
+        <line
+          x1={obj.position.x}
+          y1={obj.position.y}
+          x2={target.x}
+          y2={target.y}
+          stroke={color}
+          strokeWidth="2"
+          strokeDasharray="4,2"
+          markerEnd={`url(#arrowhead-${obj.id})`}
+          style={animationStyle(obj)}
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        ...style,
+        maxWidth: "min(40%, 200px)",
+        whiteSpace: "normal",
+        overflowWrap: "break-word",
+        background: "var(--color-card)",
+        border: `1.5px solid ${color}`,
+        borderRadius: 8,
+        padding: "4px 8px",
+        fontSize: "0.7rem",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      }}
+    >
+      {obj.text}
+    </div>
+  );
 }

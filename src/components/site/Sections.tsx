@@ -25,19 +25,19 @@ export function Hero() {
             <span className="italic text-foreground/80">its own teacher.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Ask anything. ExplainAI writes it out on a whiteboard, narrates the reasoning, and
-            hands you back a lesson video made only for you.
+            Ask anything. ExplainAI writes it out on a whiteboard, narrates the reasoning, and hands
+            you back a lesson video made only for you.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            
-            <a  href="#try"
+            <a
+              href="#try"
               className="inline-flex h-11 items-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-transform hover:scale-[1.02]"
             >
               Try free →
             </a>
 
-            
-            <a  href="#how"
+            <a
+              href="#how"
               className="inline-flex h-11 items-center rounded-full border bg-background/60 px-6 text-sm font-medium backdrop-blur transition-colors hover:bg-background"
             >
               Watch demo
@@ -93,7 +93,9 @@ export function Features() {
   return (
     <section id="features" className="mx-auto max-w-6xl px-6 py-28">
       <div className="mx-auto max-w-2xl text-center">
-        <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Features</div>
+        <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Features
+        </div>
         <h2 className="mt-3 font-display text-4xl md:text-5xl leading-[1.05]">
           Built to teach, not to answer.
         </h2>
@@ -141,7 +143,9 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl px-6 py-28">
         <div className="grid gap-16 md:grid-cols-[1fr_1.4fr] md:gap-24">
           <div>
-            <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">How it works</div>
+            <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              How it works
+            </div>
             <h2 className="mt-3 font-display text-4xl md:text-5xl leading-[1.05]">
               From question to lesson in seconds.
             </h2>
@@ -191,7 +195,9 @@ export function Testimonials() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-28">
       <div className="mx-auto max-w-2xl text-center">
-        <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loved by learners</div>
+        <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Loved by learners
+        </div>
         <h2 className="mt-3 font-display text-4xl md:text-5xl leading-[1.05]">
           "Finally, teaching that feels made for me."
         </h2>
@@ -262,7 +268,9 @@ export function Pricing() {
     <section id="pricing" className="border-y bg-secondary/40">
       <div className="mx-auto max-w-6xl px-6 py-28">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Pricing</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Pricing
+          </div>
           <h2 className="mt-3 font-display text-4xl md:text-5xl leading-[1.05]">
             One tutor. Three ways to learn.
           </h2>
@@ -292,7 +300,13 @@ export function Pricing() {
               <ul className="mt-6 space-y-3 text-sm">
                 {t.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
-                    <svg viewBox="0 0 16 16" className="mt-1 h-3.5 w-3.5 flex-shrink-0 text-brand" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg
+                      viewBox="0 0 16 16"
+                      className="mt-1 h-3.5 w-3.5 flex-shrink-0 text-brand"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
                       <path d="M3 8l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <span>{f}</span>
@@ -302,9 +316,7 @@ export function Pricing() {
               <button
                 className={
                   "mt-8 inline-flex h-11 items-center justify-center rounded-full text-sm font-medium transition-transform hover:scale-[1.02] " +
-                  (t.highlight
-                    ? "bg-foreground text-background"
-                    : "border bg-background")
+                  (t.highlight ? "bg-foreground text-background" : "border bg-background")
                 }
               >
                 {t.cta}
@@ -389,8 +401,8 @@ export function FinalCTA() {
           Your personal teacher is one question away.
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          
-          <a  href="#try"
+          <a
+            href="#try"
             className="inline-flex h-12 items-center rounded-full bg-foreground px-7 text-sm font-medium text-background transition-transform hover:scale-[1.02]"
           >
             Try ExplainAI free →

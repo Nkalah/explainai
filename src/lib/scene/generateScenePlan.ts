@@ -15,64 +15,90 @@ import type {
 } from "./scenePlan";
 
 const VALID_SCENE_CATEGORIES: SceneCategory[] = [
-  "Explanation", "Example", "Practice", "Assessment", "Transition", "Recap",
+  "Explanation",
+  "Example",
+  "Practice",
+  "Assessment",
+  "Transition",
+  "Recap",
 ];
 
 const VALID_INTENTS: EducationalIntent[] = [
-  "IntroduceConcept", "RecallPriorKnowledge", "BuildIntuition", "ShowAnalogy",
-  "VisualizeProcess", "CompareIdeas", "TransformEquation", "TraceExecution",
-  "ExplainCause", "ExplainEffect", "DemonstrateAlgorithm", "BreakIntoSteps",
-  "CorrectMisconception", "Summarize", "AssessUnderstanding", "Practice", "Review",
+  "IntroduceConcept",
+  "RecallPriorKnowledge",
+  "BuildIntuition",
+  "ShowAnalogy",
+  "VisualizeProcess",
+  "CompareIdeas",
+  "TransformEquation",
+  "TraceExecution",
+  "ExplainCause",
+  "ExplainEffect",
+  "DemonstrateAlgorithm",
+  "BreakIntoSteps",
+  "CorrectMisconception",
+  "Summarize",
+  "AssessUnderstanding",
+  "Practice",
+  "Review",
 ];
 
 const VALID_PRIMITIVES: TeachingPrimitive[] = [
-  "Reveal", "Hide", "Write", "Erase", "Highlight", "Underline", "Circle",
-  "Zoom", "Focus", "Compare", "Split", "Merge", "Transform", "Rotate",
-  "Move", "Trace", "Label", "Count", "Expand", "Collapse", "Pause",
-  "Question", "Answer", "Repeat", "Summarize",
+  "Reveal",
+  "Hide",
+  "Write",
+  "Erase",
+  "Highlight",
+  "Underline",
+  "Circle",
+  "Zoom",
+  "Focus",
+  "Compare",
+  "Split",
+  "Merge",
+  "Transform",
+  "Rotate",
+  "Move",
+  "Trace",
+  "Label",
+  "Count",
+  "Expand",
+  "Collapse",
+  "Pause",
+  "Question",
+  "Answer",
+  "Repeat",
+  "Summarize",
 ];
 
 const VALID_VISUAL_TYPES: VisualGoalType[] = [
-  "Equation", "Graph", "Table", "Diagram", "Flowchart", "Timeline",
-  "CodeTrace", "Shape", "Chart", "ArrayOrStack", "Icon", "Comparison", "None",
+  "Equation",
+  "Graph",
+  "Table",
+  "Diagram",
+  "Flowchart",
+  "Timeline",
+  "CodeTrace",
+  "Shape",
+  "Chart",
+  "ArrayOrStack",
+  "Icon",
+  "Comparison",
+  "None",
 ];
 
-const VALID_INTERACTIONS: InteractionType[] = ["None", "WaitForContinue", "PromptQuestion", "RevealOnDemand"];
+const VALID_INTERACTIONS: InteractionType[] = [
+  "None",
+  "WaitForContinue",
+  "PromptQuestion",
+  "RevealOnDemand",
+];
 const VALID_CAMERA_FOCUS: CameraFocus[] = ["wide", "focused", "detail"];
 const VALID_DENSITY: PacingDensity[] = ["sparse", "standard", "dense"];
 
 export type GroqUsage = { prompt_tokens: number; completion_tokens: number; total_tokens: number };
 
-async function callGroqJson(messages: any[]): Promise<{ data: any; usage?: GroqUsage }> {
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
-      messages,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    console.error("Groq API error body (scene plan):", errorBody);
-    throw new Error(`Groq API error: ${response.status} - ${errorBody}`);
-  }
-
-  const json = await response.json();
-  const raw = json.choices[0].message.content as string;
-  let data: any = null;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    console.error("Failed to parse scene plan JSON:", raw);
-  }
-  return { data, usage: json.usage };
-}
+import { callGroqJson } from "../groqClient";
 
 function clampNum(v: any, min: number, max: number, fallback: number): number {
   const n = typeof v === "number" && !Number.isNaN(v) ? v : fallback;
@@ -117,23 +143,32 @@ function sanitizeScene(raw: any, index: number, total: number): PlannedScene {
   return {
     id,
     type: VALID_SCENE_CATEGORIES.includes(raw?.type) ? raw.type : "Explanation",
-    educationalIntent: VALID_INTENTS.includes(raw?.educationalIntent) ? raw.educationalIntent : "IntroduceConcept",
+    educationalIntent: VALID_INTENTS.includes(raw?.educationalIntent)
+      ? raw.educationalIntent
+      : "IntroduceConcept",
     objective: sanitizeString(raw?.objective, 200),
     teachingReason: sanitizeString(raw?.teachingReason, 200),
     narration: sanitizeString(raw?.narration, 500),
     primitives: sanitizePrimitives(raw?.primitives),
     visualFocus: sanitizeVisualFocus(raw?.visualFocus),
-    importance: raw?.importance === "supporting" || raw?.importance === "optional" ? raw.importance : "core",
+    importance:
+      raw?.importance === "supporting" || raw?.importance === "optional" ? raw.importance : "core",
     duration: clampNum(raw?.duration, 2, 30, 6),
     revealSteps: clampInt(raw?.revealSteps, 1, 6, 1),
-    interactionType: VALID_INTERACTIONS.includes(raw?.interactionType) ? raw.interactionType : "None",
+    interactionType: VALID_INTERACTIONS.includes(raw?.interactionType)
+      ? raw.interactionType
+      : "None",
     cameraFocus: VALID_CAMERA_FOCUS.includes(raw?.cameraFocus) ? raw.cameraFocus : "wide",
     prerequisiteReference:
-      typeof raw?.prerequisiteReference === "number" && raw.prerequisiteReference >= 1 && raw.prerequisiteReference < id
+      typeof raw?.prerequisiteReference === "number" &&
+      raw.prerequisiteReference >= 1 &&
+      raw.prerequisiteReference < id
         ? raw.prerequisiteReference
         : null,
     preparesForSceneId:
-      typeof raw?.preparesForSceneId === "number" && raw.preparesForSceneId > id && raw.preparesForSceneId <= total
+      typeof raw?.preparesForSceneId === "number" &&
+      raw.preparesForSceneId > id &&
+      raw.preparesForSceneId <= total
         ? raw.preparesForSceneId
         : null,
     misconceptionsAddressed: sanitizeMisconceptions(raw?.misconceptionsAddressed),
@@ -151,10 +186,15 @@ function sanitizeScenePlan(raw: any): ScenePlan {
     subjectStrategy: sanitizeString(raw?.subjectStrategy, 200),
     adaptedFor: {
       difficulty: sanitizeString(raw?.adaptedFor?.difficulty, 40, "Intermediate"),
-      density: VALID_DENSITY.includes(raw?.adaptedFor?.density) ? raw.adaptedFor.density : "standard",
+      density: VALID_DENSITY.includes(raw?.adaptedFor?.density)
+        ? raw.adaptedFor.density
+        : "standard",
     },
     identifiedMisconceptions: Array.isArray(raw?.identifiedMisconceptions)
-      ? raw.identifiedMisconceptions.filter((m: any) => typeof m === "string").slice(0, 5).map((m: string) => m.slice(0, 160))
+      ? raw.identifiedMisconceptions
+          .filter((m: any) => typeof m === "string")
+          .slice(0, 5)
+          .map((m: string) => m.slice(0, 160))
       : [],
     scenes,
   };
@@ -182,14 +222,17 @@ For any other subject, design an analogous structure: establish context, build t
 export async function generateScenePlan(
   question: string,
   plan: LessonPlan,
-  toolResults: ToolResult[]
+  toolResults: ToolResult[],
 ): Promise<{ scenePlan: ScenePlan; usage?: GroqUsage }> {
   const toolContext = toolResults
     .filter((r) => r.success && r.summary)
     .map((r) => `[${r.tool}] ${r.summary}`)
     .join("\n");
 
-  const isBeginner = plan.difficulty === "Elementary" || plan.difficulty === "Middle School" || plan.difficulty === "Beginner";
+  const isBeginner =
+    plan.difficulty === "Elementary" ||
+    plan.difficulty === "Middle School" ||
+    plan.difficulty === "Beginner";
   const isAdvanced = plan.difficulty === "Advanced" || plan.difficulty === "University";
 
   const { data, usage } = await callGroqJson([

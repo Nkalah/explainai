@@ -10,13 +10,26 @@ export function Header() {
           <span className="text-[15px] font-medium tracking-tight">ExplainAI</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-          <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-          <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
+          <a href="#features" className="hover:text-foreground transition-colors">
+            Features
+          </a>
+          <a href="#how" className="hover:text-foreground transition-colors">
+            How it works
+          </a>
+          <a href="#pricing" className="hover:text-foreground transition-colors">
+            Pricing
+          </a>
+          <a href="#faq" className="hover:text-foreground transition-colors">
+            FAQ
+          </a>
         </nav>
         <div className="flex items-center gap-2">
-          <a href="#" className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline">Sign in</a>
+          <a
+            href="#"
+            className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
+          >
+            Sign in
+          </a>
           <a
             href="#try"
             className="inline-flex h-9 items-center rounded-full bg-foreground px-4 text-sm font-medium text-background transition-transform hover:scale-[1.02]"

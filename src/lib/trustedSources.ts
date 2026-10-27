@@ -1,6 +1,5 @@
 export type SubjectCategory =
-  | "math" | "programming" | "physics" | "chemistry"
-  | "biology" | "history" | "geography" | "other";
+  "math" | "programming" | "physics" | "chemistry" | "biology" | "history" | "geography" | "other";
 
 export const TRUSTED_DOMAINS: Record<SubjectCategory, string[]> = {
   math: ["openstax.org", "khanacademy.org"],

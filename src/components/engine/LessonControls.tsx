@@ -12,8 +12,15 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
+  Rewind,
+  FastForward,
 } from "lucide-react";
-import { PLAYBACK_SPEEDS, type LessonPlayback, type PlaybackSpeed } from "./useLessonPlayback";
+import {
+  PLAYBACK_SPEEDS,
+  type LessonPlayback,
+  type PlaybackSpeed,
+  formatTime,
+} from "./useLessonPlayback";
 
 export function LessonControls({
   playback,
@@ -34,10 +41,16 @@ export function LessonControls({
     canGoNext,
     bookmarks,
     index,
+    elapsedTime,
+    totalElapsedTime,
+    sceneCount,
     togglePlay,
     goPrev,
     goNext,
     restart,
+    restartScene,
+    rewind,
+    fastForward,
     toggleMute,
     setSpeed,
     toggleBookmark,
@@ -81,25 +94,36 @@ export function LessonControls({
           <RotateCcw size={16} />
         </ControlButton>
 
-        <ControlButton label="Previous step" onClick={goPrev} disabled={!canGoPrev}>
+        <ControlButton label="Restart scene" onClick={restartScene}>
           <SkipBack size={16} />
         </ControlButton>
 
-        <ControlButton
-          label={isPlaying ? "Pause" : "Play"}
-          onClick={togglePlay}
-          primary
-        >
+        <ControlButton label="Rewind" onClick={rewind}>
+          <Rewind size={16} />
+        </ControlButton>
+
+        <ControlButton label={isPlaying ? "Pause" : "Play"} onClick={togglePlay} primary>
           {isPlaying ? <Pause size={18} /> : <Play size={18} />}
         </ControlButton>
 
-        <ControlButton label="Next step" onClick={goNext} disabled={!canGoNext}>
+        <ControlButton label="Fast forward" onClick={fastForward}>
+          <FastForward size={16} />
+        </ControlButton>
+
+        <ControlButton label="Next scene" onClick={goNext} disabled={!canGoNext}>
           <SkipForward size={16} />
         </ControlButton>
 
         <ControlButton label={isMuted ? "Unmute (M)" : "Mute (M)"} onClick={toggleMute}>
           {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </ControlButton>
+
+        <div className="mx-1 hidden h-5 w-px bg-hairline sm:block" aria-hidden />
+
+        <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">
+          {formatTime(totalElapsedTime + (isPlaying ? elapsedTime : 0))} /{" "}
+          {formatTime(playback.scenes.reduce((s, sc) => s + sc.duration, 0))}
+        </span>
 
         <div className="relative">
           <ControlButton
@@ -121,7 +145,9 @@ export function LessonControls({
                   }}
                   className={
                     "block w-full rounded-lg px-3 py-1.5 text-left text-xs font-medium transition-colors " +
-                    (s === speed ? "bg-brand/15 text-brand" : "text-muted-foreground hover:bg-secondary")
+                    (s === speed
+                      ? "bg-brand/15 text-brand"
+                      : "text-muted-foreground hover:bg-secondary")
                   }
                 >
                   {s}x
@@ -135,14 +161,25 @@ export function LessonControls({
           label={isBookmarked ? "Remove bookmark" : "Bookmark this step"}
           onClick={() => toggleBookmark()}
         >
-          {isBookmarked ? <BookmarkCheck size={16} className="text-brand" /> : <Bookmark size={16} />}
+          {isBookmarked ? (
+            <BookmarkCheck size={16} className="text-brand" />
+          ) : (
+            <Bookmark size={16} />
+          )}
         </ControlButton>
 
-        <ControlButton label={isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen (F)"} onClick={onToggleFullscreen}>
+        <ControlButton
+          label={isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen (F)"}
+          onClick={onToggleFullscreen}
+        >
           {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
         </ControlButton>
 
-        <ControlButton label="Download lesson (coming soon)" onClick={onDownload} disabled={!onDownload}>
+        <ControlButton
+          label="Download lesson (coming soon)"
+          onClick={onDownload}
+          disabled={!onDownload}
+        >
           <Download size={16} />
         </ControlButton>
       </div>

@@ -14,8 +14,13 @@ let registered = false;
  *  here. The router (router.ts) never needs to change for this. */
 export function registerAllTools() {
   if (registered) return;
-  [trustedSourcesRetriever, searchEngine, dateCalculator, calculator, confidenceEvaluator, ...stubTools].forEach((t) =>
-    toolRegistry.register(t)
-  );
+  [
+    trustedSourcesRetriever,
+    searchEngine,
+    dateCalculator,
+    calculator,
+    confidenceEvaluator,
+    ...stubTools,
+  ].forEach((t) => toolRegistry.register(t));
   registered = true;
 }
