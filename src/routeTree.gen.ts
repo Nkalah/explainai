@@ -9,14 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PlayerTestRouteImport } from './routes/player-test'
-import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as PlayerTestRouteImport } from './routes/player-test'
 import { Route as ChatConversationIdRouteImport } from './routes/chat.$conversationId'
 
-const PlayerTestRoute = PlayerTestRouteImport.update({
-  id: '/player-test',
-  path: '/player-test',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -24,9 +24,9 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PlayerTestRoute = PlayerTestRouteImport.update({
+  id: '/player-test',
+  path: '/player-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatConversationIdRoute = ChatConversationIdRouteImport.update({
@@ -70,11 +70,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/player-test': {
-      id: '/player-test'
-      path: '/player-test'
-      fullPath: '/player-test'
-      preLoaderRoute: typeof PlayerTestRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -84,11 +84,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/player-test': {
+      id: '/player-test'
+      path: '/player-test'
+      fullPath: '/player-test'
+      preLoaderRoute: typeof PlayerTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/$conversationId': {
